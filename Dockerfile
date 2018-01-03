@@ -53,7 +53,7 @@ RUN echo 2.0 > /usr/share/jenkins/ref/jenkins.install.UpgradeWizard.state
 # Container Configuration 
 USER root
 
-# Create Jenkins Volumes 
+# Create extra volumes for logging and WAR cache location to allow for updates as part of master docker image 
 RUN mkdir /var/log/jenkins
 RUN mkdir /var/cache/jenkins
 RUN chown -R jenkins:jenkins /var/log/jenkins
