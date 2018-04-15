@@ -61,7 +61,7 @@ RUN chown -R jenkins:jenkins /var/log/jenkins
 RUN chown -R jenkins:jenkins /var/cache/jenkins
 
 # Install OS Packages
-RUN apt-get update && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -y && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get install -y build-essential && rm -rf /var/lib/apt/lists/*
 RUN apt-get install -y docker && rm -rf /var/lib/apt/lists/*
