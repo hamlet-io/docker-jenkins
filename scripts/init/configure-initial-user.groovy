@@ -74,8 +74,8 @@ if(env.JENKINS_SECURITYREALM == "github") {
     String githubWebUri = github_realm.optString('web_uri', GithubSecurityRealm.DEFAULT_WEB_URI)
     String githubApiUri = github_realm.optString('api_uri', GithubSecurityRealm.DEFAULT_API_URI)
     String oauthScopes = github_realm.optString('oauth_scopes', GithubSecurityRealm.DEFAULT_OAUTH_SCOPES)
-    String clientID = github_realm.optString('client_id', env.GITHUB_CLIENTID)
-    String clientSecret = github_realm.optString('client_secret', env.GITHUB_SECRET)
+    String clientID = github_realm.optString('client_id', env.GITHUBAUTH_CLIENTID)
+    String clientSecret = github_realm.optString('client_secret', env.GITHUBAUTH_SECRET)
 
     if(clientID && clientSecret) {
         SecurityRealm github_realm = new GithubSecurityRealm(githubWebUri, githubApiUri, clientID, clientSecret, oauthScopes)
@@ -85,7 +85,7 @@ if(env.JENKINS_SECURITYREALM == "github") {
         } 
         
     }
-    jenkins.getAuthorizationStrategy().add(Jenkins.ADMINISTER, env.GITHUB_ADMIN)
+    jenkins.getAuthorizationStrategy().add(Jenkins.ADMINISTER, env.GITHUBAUTH_ADMIN)
 }
 
 jenkins.save()
