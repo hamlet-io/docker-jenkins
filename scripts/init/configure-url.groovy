@@ -6,12 +6,13 @@ import hudson.security.*
 //Get the JENKINS_URL env n
 def env = System.getenv()
 def jenkinslocationconfig = JenkinsLocationConfiguration.get()
+def jenkins_url = ""
 
 if ( env.LB_URL ) { 
-    def jenkins_url = env.LB_URL 
+    jenkins_url = env.LB_URL 
 }
  else if ( env.JENKINS_URL ) {
-    def jenkins_url = env.JENKINS_URL
+    jenkins_url = env.JENKINS_URL
 }
 println "JENKINS_URL: " + jenkins_url
 

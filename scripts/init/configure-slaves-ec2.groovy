@@ -43,7 +43,7 @@ private String getRegion() {
     EC2MetadataUtils.instanceInfo.region
 }
 
-private String queryJenkinsClusterArn(String regionName String arn) {
+private String queryJenkinsClusterArn(String regionName, String arn) {
     AmazonECSClient client = new AmazonECSClient(clientConfiguration)
     client.setRegion(RegionUtils.getRegion(regionName))
     client.listClusters().getClusterArns().find { it.contains(arn) }
