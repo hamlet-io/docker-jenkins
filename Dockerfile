@@ -51,6 +51,11 @@ RUN /usr/local/bin/install-plugins.sh build-user-vars-plugin
 RUN /usr/local/bin/install-plugins.sh envinject
 RUN /usr/local/bin/install-plugins.sh parameterized-trigger
 
+# AWS Specific plugins 
+RUN /usr/local/bin/install-plugins.sh amazon-ecs
+RUN /usr/local/bin/install-plugins.sh aws-credentials
+RUN /usr/local/bin/install-plugins.sh aws-java-sdk
+
 # Container Configuration 
 USER root
 
@@ -73,15 +78,21 @@ RUN apt-get update && apt-get install -y \
 # Change back to jenkins user to run jenkins
 USER jenkins
 
+ENV JENKINS_URL=""
+ENV LB_URL=""
+
+ENV JENKINS_SLAVEPROVIDER="ecs"
+
 # Jenkins Authentication
 ENV JENKINS_SECURITYREALM="local"
 
 ENV JENKINS_USER=""
 ENV JENKINS_PASS=""
+ENV SENSITIVE_JENKINS_PASS=""
 
-ENV GITHUBAUTH_CLIENTID=""
-ENV GITHUBAUTH_SECRET=""
-ENV GITHUBAUTH_ADMIN=""
+ENV GITHUB_CLIENTID=""
+ENV GITHUB_ADMIN=""
+ENV SENSITIVE_GITHUB_SECRET=""
 
 # Set environmental configuration for Jenkins
 ENV JAVA_OPTS="-Xmx4096m -Dhudson.DNSMultiCast.disabled=true -Djenkins.install.runSetupWizard=false -Dorg.apache.commons.jelly.tags.fmt.timeZone=Australia/Sydney"
