@@ -15,48 +15,49 @@ import jenkins.model.JenkinsLocationConfiguration
 
 import java.util.logging.Logger
 
-def env = System.getenv()
-def jenkins = Jenkins.getInstance()
+Logger.global.info("[Running] startup script")
 
-Logger.global.info("Configuring ECS Slaves")
+configureCloud()
 
-if ( env.JENKINS_SLAVEPROVIDER == "ecs" ) {
+Jenkins.instance.save()
 
-    def clusterName = env.ECS_ARN
+Logger.global.info("[Done] startup script")
 
-    configureCloud(clusterName)
 
-    Jenkins.instance.save()
-
-    Logger.global.info("[Done] startup script")
-
-}
-else { 
-    Logger.global.info("[Done] ECS not required, moving on..")
+private String getRegion() {
+    EC2MetadataUtils.instanceInfo.region
 }
 
 private getClientConfiguration() {
     new ClientConfiguration()
 }
 
-private String getRegion() {
-    EC2MetadataUtils.instanceInfo.region
+private String getJenkinsURL() {
+    JenkinsLocationConfiguration globalConfig = new JenkinsLocationConfiguration();
+    return globalConfig.getUrl()
 }
 
-private String queryJenkinsClusterArn(String regionName, String arn) {
+private String getClusterArn() {
+    def env = System.getenv()
+    return env.ECS_ARN
+}
+
+private String queryJenkinsClusterArn(String regionName, String clusterArn) {
     AmazonECSClient client = new AmazonECSClient(clientConfiguration)
     client.setRegion(RegionUtils.getRegion(regionName))
-    client.listClusters().getClusterArns().find { it.contains(arn) }
+    client.listClusters().getClusterArns().find { it.contains(clusterArn) }
 }
 
-private void configureCloud( String ecsCluster ) {
+private void configureCloud() {
     try {
         Logger.global.info("Creating ECS Template")
         def ecsTemplates = templates = Arrays.asList(
                 //a t2.micro has 992 memory units & 1024 CPU units
                 createECSTaskTemplate('ecs-java', 'cloudbees/jnlp-slave-with-java-build-tools', 992, 1024),
+                createECSTaskTemplate('ecs-javascript', 'cloudbees/jnlp-slave-with-java-build-tools', 496, 512)
         )
-        String clusterArn = queryJenkinsClusterArn(region)
+        String envClusterArn = getClusterArn()
+        String clusterArn = queryJenkinsClusterArn(region, envClusterArn)
 
         Logger.global.info("Creating ECS Cloud for $clusterArn")
         def ecsCloud = new ECSCloud(
@@ -65,7 +66,7 @@ private void configureCloud( String ecsCluster ) {
                 credentialsId = '',
                 cluster = clusterArn,
                 regionName = region,
-                jenkinsUrl = instanceUrl,
+                jenkinsUrl = null,
                 slaveTimoutInSeconds = 60
         )
 
@@ -91,10 +92,11 @@ private ECSTaskTemplate createECSTaskTemplate(String label, String image, int so
             memoryReservation = softMemory,
             cpu = cpu,
             privileged = false,
+            containerUser = null,
             logDriverOptions = null,
             environments = null,
             extraHosts = null,
-            mountPoints = null
+            mountPoints = null,
+            portMappings = null
     )
 }
-
