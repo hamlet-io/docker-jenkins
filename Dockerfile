@@ -79,7 +79,7 @@ RUN apt-get update && apt-get install -y \
 USER jenkins
 
 ENV JENKINS_URL=""
-ENV LB_URL=""
+ENV JENKINSLB_URL=""
 
 ENV JENKINS_SLAVEPROVIDER="ecs"
 
