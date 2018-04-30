@@ -8,8 +8,8 @@ def env = System.getenv()
 def jenkinslocationconfig = JenkinsLocationConfiguration.get()
 def jenkins_url = ""
 
-if ( env.LB_URL ) { 
-    jenkins_url = env.LB_URL 
+if ( env.JENKINSLB_URL ) { 
+    jenkins_url = env.JENKINSLB_URL 
 }
  else if ( env.JENKINS_URL ) {
     jenkins_url = env.JENKINS_URL

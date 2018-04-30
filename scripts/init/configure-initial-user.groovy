@@ -1,41 +1,35 @@
-import jenkins.model.*
-import hudson.security.*
-import org.jenkinsci.plugins.GithubSecurityRealm
-import net.sf.json.JSONObject
-import com.cloudbees.plugins.credentials.*
+import jenkins.model.*;
+import hudson.security.*;
+import java.util.logging.Logger;
 
-import com.amazonaws.util.Base64
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
-import com.amazonaws.services.kms.AWSKMSClient;
-import com.amazonaws.services.kms.model.DecryptRequest;
+import org.jenkinsci.plugins.GithubSecurityRealm;
+import net.sf.json.JSONObject;
+import com.cloudbees.plugins.credentials.*;
+
+import com.amazonaws.util.Base64;
+import com.amazonaws.services.kms.*;
+import com.amazonaws.services.kms.model.*;
+
+import java.nio.ByteBuffer;
 
 def env = System.getenv()
 def jenkins = Jenkins.getInstance()
-def jenkinsPassword = ""
-def githubSecret = ""
 
-if( env.SENSITIVE_JENKINS_PASS ) {
-    
-    String decryptedPass = getKMSDecryptedString(env.SENSITIVE_JENKINS_PASS)
-    jenkinsPassword = decryptedPass
+def String securityRealm = env.JENKINSENV_SECURITYREALM
+def String jenkinsUser = env.JENKINSENV_USER
+def String githubClientId = env.GITHUBAUTH_CLIENTID
+def String githubAdmin =  env.GITHUBAUTH_ADMIN
 
-} else { 
-    jenkinsPassword = env.JENKINS_PASS    
+def String jenkinsPassword = getKMSDecryptedString(env.JENKINSENV_PASS)
+def String githubSecret = getKMSDecryptedString(env.GITHUBAUTH_SECRET)
+
+if (!jenkinsPassword) {
+    jenkinsPassword = env.JENKINSENV_PASS
 }
 
-if( env.SENSITVE_GITHUB_SECRET ) { 
-    
-    String decryptedGithubSecret = getKMSDecryptedString(env.SENSITVE_GITHUB_SECRET)
-    githubSecret = decryptedGithubSecret
-    
+if (!githubSecret) {
+    githubSecret = env.GITHUBAUTH_SECRET
 }
-else { 
-    githubSecret = env.GITHUB_SECRET
-}
-
-Logger.global.info("Secret: " + githubSecret)
-Logger.global.info("Password: " + decryptedPass)
 
 // Set Auth Strategy 
 if ( !(jenkins.getAuthorizationStrategy() instanceof ProjectMatrixAuthorizationStrategy) ) {
@@ -44,23 +38,23 @@ if ( !(jenkins.getAuthorizationStrategy() instanceof ProjectMatrixAuthorizationS
 
 // -- Add Authentication Sources
 // Inbuilt local user
-if(env.JENKINS_SECURITYREALM == "local") {
+if(securityRealm == "local") {
     
     SecurityRealm local_realm = new HudsonPrivateSecurityRealm(false) 
     if(!(jenkins.getSecurityRealm() instanceof HudsonPrivateSecurityRealm )) {
         jenkins.setSecurityRealm(local_realm)
 
         // Create a single local admin user
-        def user = jenkins.getSecurityRealm().createAccount(env.JENKINS_USER, env.JENKINS_PASS)
+        def user = jenkins.getSecurityRealm().createAccount(jenkinsUser, jenkinsPassword)
         user.save()
     }
 
-    jenkins.getAuthorizationStrategy().add(Jenkins.ADMINISTER, env.JENKINS_USER)
+    jenkins.getAuthorizationStrategy().add(Jenkins.ADMINISTER, jenkinsUser)
     
 }
 
 // GitHub oAuth 
-if(env.JENKINS_SECURITYREALM == "github") {
+if(securityRealm == "github") {
     if(!binding.hasVariable('github_realm')) {
         github_realm = [:]
     }
@@ -73,9 +67,9 @@ if(env.JENKINS_SECURITYREALM == "github") {
 
     String githubWebUri = github_realm.optString('web_uri', GithubSecurityRealm.DEFAULT_WEB_URI)
     String githubApiUri = github_realm.optString('api_uri', GithubSecurityRealm.DEFAULT_API_URI)
-    String oauthScopes = github_realm.optString('oauth_scopes', GithubSecurityRealm.DEFAULT_OAUTH_SCOPES)
-    String clientID = github_realm.optString('client_id', env.GITHUBAUTH_CLIENTID)
-    String clientSecret = github_realm.optString('client_secret', env.GITHUBAUTH_SECRET)
+    String oauthScopes  = github_realm.optString('oauth_scopes', GithubSecurityRealm.DEFAULT_OAUTH_SCOPES)
+    String clientID     = github_realm.optString('client_id', githubClientId)
+    String clientSecret = github_realm.optString('client_secret', githubSecret)
 
     if(clientID && clientSecret) {
         SecurityRealm github_realm = new GithubSecurityRealm(githubWebUri, githubApiUri, clientID, clientSecret, oauthScopes)
@@ -83,28 +77,27 @@ if(env.JENKINS_SECURITYREALM == "github") {
         if(!(jenkins.getSecurityRealm() instanceof GithubSecurityRealm)) {
             jenkins.setSecurityRealm(github_realm)
         } 
-        
     }
-    jenkins.getAuthorizationStrategy().add(Jenkins.ADMINISTER, env.GITHUBAUTH_ADMIN)
+    jenkins.getAuthorizationStrategy().add(Jenkins.ADMINISTER, githubAdmin)
 }
 
 jenkins.save()
 
 private String getKMSDecryptedString( String encryptedString ) {
     try {
-		byte[] cipherText = Base64.getDecoder().decode(encryptedString);
 
-		AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
+        AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
 
-		// decrypt data
-		DecryptRequest decryptRequest = new DecryptRequest()
-				.withCiphertextBlob(cipherText);
-		String plainText = kmsClient.decrypt(decryptRequest).getPlaintext().toString();
+		ByteBuffer cipherText = ByteBuffer.wrap(Base64.decode(encryptedString));
+        DecryptRequest decryptRequest = new DecryptRequest().withCiphertextBlob(cipherText);
+        ByteBuffer plainText = kmsClient.decrypt(decryptRequest).getPlaintext();
 
-        return plainText
+        byte[] byteArray = new byte[plainText.remaining()];
+		plainText.get(byteArray);
+		return new String(byteArray);
     }
     catch (com.amazonaws.AmazonServiceException e) { 
-        Logger.global.severe({ e.message })
-        Logger.global.severe("Couldn't decrypt string")
+        Logger.global.info({ e.message })
+        Logger.global.info("Couldn't decrypt string - using as plaintext")
     }
 }

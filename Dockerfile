@@ -79,23 +79,26 @@ RUN apt-get update && apt-get install -y \
 USER jenkins
 
 ENV JENKINS_URL=""
-ENV LB_URL=""
+ENV JENKINSLB_URL=""
 
-ENV JENKINS_SLAVEPROVIDER="ecs"
+ENV JENKINSENV_SLAVEPROVIDER="ecs"
 
 # Jenkins Authentication
-ENV JENKINS_SECURITYREALM="local"
+ENV JENKINSENV_SECURITYREALM="local"
 
-ENV JENKINS_USER=""
-ENV JENKINS_PASS=""
-ENV JENKINS_PASS=""
-ENV SENSITIVE_JENKINS_PASS=""
+ENV JENKINSENV_USER=""
+ENV JENKINSENV_PASS=""
 
-ENV GITHUB_CLIENTID=""
-ENV GITHUB_ADMIN=""
-ENV GITHUB_SECRET=""
-ENV SENSITIVE_GITHUB_SECRET=""
+ENV GITHUBAUTH_CLIENTID=""
+ENV GITHUBAUTH_ADMIN=""
+ENV GITHUBAUTH_SECRET=""
+
+ENV TIMEZONE="Australia/Sydney"
+ENV MAXMEMORY="4096m"
+
+ENV JAVA_OPTS="-Dhudson.DNSMultiCast.disabled=true"
+ENV JAVA_OPTS="${JAVA_OPTS} -Dorg.apache.commons.jelly.tags.fmt.timeZone=${TIMEZONE}"
+ENV JAVA_OPTS="${JAVA_OPTS} -Xmx${MAXMEMORY}"
 
 # Set environmental configuration for Jenkins
-ENV JAVA_OPTS="-Xmx4096m -Dhudson.DNSMultiCast.disabled=true -Djenkins.install.runSetupWizard=false -Dorg.apache.commons.jelly.tags.fmt.timeZone=Australia/Sydney"
 ENV JENKINS_OPTS="--logfile=/var/log/jenkins/jenkins.log --webroot=/var/cache/jenkins/war"
