@@ -4,7 +4,7 @@ LABEL MAINTAINER="codeontap"
 
 #Copy Jenkins init files - make sure they override the old files
 COPY scripts/init/ /usr/share/jenkins/ref/init.groovy.d/
-RUN find /user/share/jenkins/ref/init.groovy.d/ -type f -exec mv '{}' '{}'.override \;
+RUN find /usr/share/jenkins/ref/init.groovy.d/ -type f -exec mv '{}' '{}'.override \;
 
 # install plugins specified in https://github.com/kohsuke/jenkins/blob/master/core/src/main/resources/jenkins/install/platform-plugins.json
 
