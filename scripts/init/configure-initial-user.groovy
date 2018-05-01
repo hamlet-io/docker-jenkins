@@ -17,11 +17,20 @@ def jenkins = Jenkins.getInstance()
 
 def String securityRealm = env.JENKINSENV_SECURITYREALM
 def String jenkinsUser = env.JENKINSENV_USER
+def String jenkinsPassword = env.JENKINSENV_PASS
 def String githubClientId = env.GITHUBAUTH_CLIENTID
+def String githubSecret = env.GITHUBAUTH_SECRET
 def String githubAdmin =  env.GITHUBAUTH_ADMIN
 
-def String jenkinsPassword = getKMSDecryptedString(env.JENKINSENV_PASS)
-def String githubSecret = getKMSDecryptedString(env.GITHUBAUTH_SECRET)
+if (jenkinsPassword) { 
+    Logger.global.info("Attempting Decryption of jenkinsPassword")
+    jenkinsPassword = getKMSDecryptedString(env.JENKINSENV_PASS)
+}
+
+if (githubSecret) {
+    Logger.global.info("Attempting Decryption of githubSecret")
+    githubSecret = getKMSDecryptedString(env.GITHUBAUTH_SECRET)
+}
 
 if (!jenkinsPassword) {
     jenkinsPassword = env.JENKINSENV_PASS
@@ -97,7 +106,6 @@ private String getKMSDecryptedString( String encryptedString ) {
 		return new String(byteArray);
     }
     catch (all) { 
-        Logger.global.info({ e.message })
         Logger.global.info("Couldn't decrypt string - using as plaintext")
     }
 }
