@@ -96,7 +96,7 @@ private String getKMSDecryptedString( String encryptedString ) {
 		plainText.get(byteArray);
 		return new String(byteArray);
     }
-    catch (com.amazonaws.AmazonServiceException e) { 
+    catch (all) { 
         Logger.global.info({ e.message })
         Logger.global.info("Couldn't decrypt string - using as plaintext")
     }
