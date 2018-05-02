@@ -52,9 +52,8 @@ private void configureCloud() {
     try {
         Logger.global.info("Creating ECS Template")
         def ecsTemplates = templates = Arrays.asList(
-                //a t2.micro has 992 memory units & 1024 CPU units
-                createECSTaskTemplate('ecs-java', 'cloudbees/jnlp-slave-with-java-build-tools', 992, 1024),
-                createECSTaskTemplate('ecs-javascript', 'cloudbees/jnlp-slave-with-java-build-tools', 496, 512)
+                createECSTaskTemplate('codeontap', 'codeontap/gen3:jenkinsslave-stable', 2048, 2048)
+                createECSTaskTemplate('codeontap-latest', 'codeontap/gen3:jenkinsslave-latest', 2048, 2048)
         )
         String envClusterArn = getClusterArn()
         String clusterArn = queryJenkinsClusterArn(region, envClusterArn)
