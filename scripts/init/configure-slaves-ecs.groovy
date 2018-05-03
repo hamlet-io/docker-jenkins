@@ -9,7 +9,6 @@ import com.cloudbees.jenkins.plugins.amazonecs.ECSTaskTemplate.MountPointEntry
 import com.cloudbees.jenkins.plugins.amazonecs.ECSTaskTemplate.EnvironmentEntry
 import com.cloudbees.jenkins.plugins.amazonecs.ECSTaskTemplate.LogDriverOption
 import com.cloudbees.jenkins.plugins.amazonecs.ECSCloud
-import com.cloudbees.jenkins
 import hudson.model.*
 import hudson.plugins.gradle.*
 import hudson.tools.*
