@@ -1,0 +1,43 @@
+# install Build Features plugins
+cloudbees-folder
+build-timeout
+timestamper
+ws-cleanup
+saferestart
+mailer
+
+# install User Management and Security plugins
+credentials
+credentials-binding
+matrix-auth
+pam-auth
+ldap
+github-oauth
+
+# install Source Code Management plugins
+git
+
+# install Organisation and Administration plugins
+antisamy-markup-formatter
+github-organization-folder
+
+# install Build Tools plugins
+ant
+gradle
+
+# install Pipelines and Continuous Delivery plugins
+# These are pretty big plugins so they have specific versions set to reduce potential issues
+workflow-aggregator:2.5
+pipeline-stage-view:2.10
+
+# Install CodeOnTap Specific Plugins
+slack
+extended-choice-parameter
+build-user-vars-plugin
+envinject
+parameterized-trigger
+
+# AWS Specific plugins 
+aws-java-sdk
+aws-credentials
+amazon-ecs

@@ -6,11 +6,10 @@ import org.jenkinsci.plugins.GithubSecurityRealm;
 import net.sf.json.JSONObject;
 import com.cloudbees.plugins.credentials.*;
 
+import java.nio.ByteBuffer;
 import com.amazonaws.util.Base64;
 import com.amazonaws.services.kms.*;
 import com.amazonaws.services.kms.model.*;
-
-import java.nio.ByteBuffer;
 
 def env = System.getenv()
 def jenkins = Jenkins.getInstance()

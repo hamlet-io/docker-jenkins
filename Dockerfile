@@ -8,54 +8,8 @@ RUN find /usr/share/jenkins/ref/init.groovy.d/ -type f -exec mv '{}' '{}'.overri
 
 # install plugins specified in https://github.com/kohsuke/jenkins/blob/master/core/src/main/resources/jenkins/install/platform-plugins.json
 
-# install Organisation and Administration plugins
-RUN /usr/local/bin/install-plugins.sh cloudbees-folder
-RUN /usr/local/bin/install-plugins.sh antisamy-markup-formatter
-
-# install Build Features plugins
-RUN /usr/local/bin/install-plugins.sh build-timeout
-RUN /usr/local/bin/install-plugins.sh credentials-binding
-RUN /usr/local/bin/install-plugins.sh timestamper
-RUN /usr/local/bin/install-plugins.sh ws-cleanup
-
-# install Build Tools plugins
-RUN /usr/local/bin/install-plugins.sh ant
-RUN /usr/local/bin/install-plugins.sh gradle
-
-# install Pipelines and Continuous Delivery plugins
-# These are pretty big plugins so they have specific versions set to reduce potential issues
-RUN /usr/local/bin/install-plugins.sh workflow-aggregator:2.5
-RUN /usr/local/bin/install-plugins.sh github-organization-folder:1.6
-RUN /usr/local/bin/install-plugins.sh pipeline-stage-view:2.10
-
-# install Source Code Management plugins
-RUN /usr/local/bin/install-plugins.sh git
-
-# install Distributed Builds plugins
-RUN /usr/local/bin/install-plugins.sh ssh-slaves
-
-# install User Management and Security plugins
-RUN /usr/local/bin/install-plugins.sh matrix-auth
-RUN /usr/local/bin/install-plugins.sh pam-auth
-RUN /usr/local/bin/install-plugins.sh ldap
-
-# install Notifications and Publishing plugins
-RUN /usr/local/bin/install-plugins.sh email-ext
-RUN /usr/local/bin/install-plugins.sh mailer
-
-# Install CodeOnTap Specific Plugins
-RUN /usr/local/bin/install-plugins.sh saferestart
-RUN /usr/local/bin/install-plugins.sh github-oauth
-RUN /usr/local/bin/install-plugins.sh slack
-RUN /usr/local/bin/install-plugins.sh extended-choice-parameter
-RUN /usr/local/bin/install-plugins.sh build-user-vars-plugin
-RUN /usr/local/bin/install-plugins.sh envinject
-RUN /usr/local/bin/install-plugins.sh parameterized-trigger
-
-# AWS Specific plugins 
-RUN /usr/local/bin/install-plugins.sh amazon-ecs
-RUN /usr/local/bin/install-plugins.sh aws-credentials
-RUN /usr/local/bin/install-plugins.sh aws-java-sdk
+COPY scripts/plugins.txt /usr/share/jenkins/ref/plugins.txt
+RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
 
 # Container Configuration 
 USER root
@@ -97,7 +51,7 @@ ENV GITHUBAUTH_SECRET=""
 ENV TIMEZONE="Australia/Sydney"
 ENV MAXMEMORY="4096m"
 
-ENV JAVA_OPTS="-Dhudson.DNSMultiCast.disabled=true"
+ENV JAVA_OPTS="-Dhudson.DNSMultiCast.disabled=true -Djenkins.install.runSetupWizard=false"
 ENV JAVA_OPTS="${JAVA_OPTS} -Dorg.apache.commons.jelly.tags.fmt.timeZone=${TIMEZONE}"
 ENV JAVA_OPTS="${JAVA_OPTS} -Xmx${MAXMEMORY}"
 
