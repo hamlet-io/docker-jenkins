@@ -14,7 +14,7 @@ import com.amazonaws.services.kms.model.*;
 def jenkins = Jenkins.getInstance()
 
 def env = System.getenv()
-def credentials = env.findResults {  k, v -> k.contains("JENKINSENV_CREDENTIAL_") == true ? [ k.minus("JENKINSENV_CREDENTIAL_").split("_")[0],k.minus("JENKINSENV_CREDENTIAL_").split("_")[1],v ] : null }
+def credentials = env.findResults {  k, v -> k.contains("JENKINSENV_CREDENTIALS_") == true ? [ k.minus("JENKINSENV_CREDENTIALS_").split("_")[0],k.minus("JENKINSENV_CREDENTIALS_").split("_")[1],v ] : null }
 credentials = credentials.groupBy( { credential -> credential[0] })
 
 credentialObjects = []
