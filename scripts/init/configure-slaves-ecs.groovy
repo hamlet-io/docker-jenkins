@@ -16,7 +16,23 @@ import jenkins.model.*
 import jenkins.model.Jenkins
 import jenkins.model.JenkinsLocationConfiguration
 
-import java.util.logging.Logger
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.List;
+
+import groovy.json.JsonSlurper
+
+import java.util.logging.Logger;
 
 def env = System.getenv()
 
@@ -25,9 +41,12 @@ if ( env.JENKINSENV_SLAVEPROVIDER == "ecs" ) {
     Logger.global.info("[Running] Configuring ECS as slave provider")
     configureCloud()
     Jenkins.instance.save()
+    
     Logger.global.info("[Done] ECS Slave Provider configuraton finished ")
 
 }
+
+getECSTaskTemplates()
 
 private String getRegion() {
     EC2MetadataUtils.instanceInfo.region
@@ -123,4 +142,68 @@ private ECSTaskTemplate createECSTaskTemplate(String label, String image, int so
             mountPoints = mountPoints,
             portMappings = null
     )
+}
+
+private ECSTaskTemplate getECSTaskTemplates() {
+
+    def env = System.getenv()
+    def templates = env.findResults {  k, v -> k.contains("_DEFINITION") == true ? [ (k.split("_").reverse()[1..-1]).join("-"), k.split("_").reverse()[0],v ] : null }
+    templates = templates.groupBy( { template -> template[0] })
+
+    for ( String key in templates.keySet() ) {
+        def String s3Bucket = ""
+        def String definitionFile = ""
+
+        def String localFile = "/tmp/${key}.config"
+
+        properties = templates.get(key)
+        for ( property in properties ) { 
+            switch (property[1]) { 
+                case "DEFINITIONBUCKET":
+                    s3Bucket = property[2]
+                    break
+                case "DEFINITIONFILE":
+                    definitionFile = property[2]
+                    break
+            }
+        }
+
+        Logger.global.info(s3Bucket)
+        Logger.global.info(definitionFile)
+
+        AmazonS3 s3 = 
+        AmazonS3ClientBuilder.standard()
+                             .withRegion("ap-southeast-2") // The first region to try your request against
+                             .withForceGlobalBucketAccessEnabled(true) // If a bucket is in a different region, try again in the correct region
+                             .build();
+
+        ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
+                .withBucketName(s3Bucket)
+                .withEncodingType("url");
+
+        List objects = s3.listObjects(listObjectsRequest)
+        for (Bucket object in objects) {
+             Logger.global.info("* " + object.getName());
+        }
+
+        try {
+            
+            S3Object o = s3.getObject(s3Bucket, definitionFile);
+            S3ObjectInputStream s3is = o.getObjectContent();
+
+            } catch (AmazonServiceException e) {
+                Logger.global.info(e.getErrorMessage());
+            } catch (FileNotFoundException e) {
+                Logger.global.info(e.getErrorMessage());
+            } catch (IOException e) {
+                Logger.global.info(e.getErrorMessage());
+            }
+
+            def InputJSON = new JsonSlurper().parse(s3is)
+            
+            s3is.close();
+            
+            InputJSON.each{ Logger.global.info( it )}
+
+    }
 }
