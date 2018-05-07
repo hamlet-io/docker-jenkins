@@ -8,6 +8,9 @@ import com.cloudbees.jenkins.plugins.amazonecs.ECSTaskTemplate
 import com.cloudbees.jenkins.plugins.amazonecs.ECSTaskTemplate.MountPointEntry
 import com.cloudbees.jenkins.plugins.amazonecs.ECSTaskTemplate.EnvironmentEntry
 import com.cloudbees.jenkins.plugins.amazonecs.ECSTaskTemplate.LogDriverOption
+import com.cloudbees.jenkins.plugins.amazonecs.ECSTaskTemplate.PortMappingEntry
+import com.cloudbees.jenkins.plugins.amazonecs.ECSTaskTemplate.ExtraHostEntry
+
 import com.cloudbees.jenkins.plugins.amazonecs.ECSCloud
 import hudson.model.*
 import hudson.plugins.gradle.*
@@ -41,12 +44,9 @@ if ( env.JENKINSENV_SLAVEPROVIDER == "ecs" ) {
     Logger.global.info("[Running] Configuring ECS as slave provider")
     configureCloud()
     Jenkins.instance.save()
-    
     Logger.global.info("[Done] ECS Slave Provider configuraton finished ")
 
 }
-
-getECSTaskTemplates()
 
 private String getRegion() {
     EC2MetadataUtils.instanceInfo.region
@@ -77,13 +77,21 @@ private String queryJenkinsClusterArn(String regionName, String clusterArn) {
     client.listClusters().getClusterArns().find { it.contains(clusterArn) }
 }
 
-private void configureCloud() {
+private void configureCloud( ) {
     try {
-        Logger.global.info("Creating ECS Template")
+        Logger.global.info("Building ECS Task Definition Templates")
+
+        // Explicit Task Definitions 
         def ecsTemplates = templates = Arrays.asList(
-                createECSTaskTemplate('codeontap', 'codeontap/gen3:jenkinsslave-stable', 512, 1024),
-                createECSTaskTemplate('codeontap-latest', 'codeontap/gen3:jenkinsslave-latest', 512, 1024)
+            //createECSTaskTemplate('codeontap-something', 'codeontap/gen3:jenkinsslave-stable', 512, 1024),
+            //createECSTaskTemplate('codeontap-latest', 'codeontap/gen3:jenkinsslave-latest', 512, 1024),
         )
+
+        // S3 Configuration file based Templates 
+        ecsTemplates += getS3ECSTaskTemplates()
+
+        Logger.global.info( "Found ${ecsTemplates.Size()} Task Definitions" )
+
         String envClusterArn = getClusterArn()
         String clusterArn = queryJenkinsClusterArn(region, envClusterArn)
 
@@ -109,21 +117,6 @@ private void configureCloud() {
 private ECSTaskTemplate createECSTaskTemplate(String label, String image, int softMemory, int cpu) {
     Logger.global.info("Creating ECS Template '$label' for image '$image' (memory: softMemory, cpu: $cpu)")
 
-    def volumeCodeOnTapSource = getVolumeCodeOnTapPath()
-    
-    def mountPoints = []
-
-    if ( volumeCodeOnTapSource ) {
-        volumeCodeOnTap = new MountPointEntry(
-            name = siteProperties
-            sourcePath = volumeCodeOnTapSource
-            containerPath = "/var/opt/codeontap/"
-            readOnly = true
-        )
-
-        mountPoints.push(volumeCodeOnTap)
-    }
-
     new ECSTaskTemplate(
             templateName = label,
             label = label,
@@ -139,22 +132,24 @@ private ECSTaskTemplate createECSTaskTemplate(String label, String image, int so
             logDriverOptions = null,
             environments = null,
             extraHosts = null,
-            mountPoints = mountPoints,
+            mountPoints = null,
             portMappings = null
     )
 }
 
-private ECSTaskTemplate getECSTaskTemplates() {
+private ArrayList<ECSTaskTemplate> getS3ECSTaskTemplates() {
 
     def env = System.getenv()
-    def templates = env.findResults {  k, v -> k.contains("_DEFINITION") == true ? [ (k.split("_").reverse()[1..-1]).join("-"), k.split("_").reverse()[0],v ] : null }
+    def templates = env.findResults {  k, v -> k.startsWith("SLAVE") == true ? [ (k.split("_").reverse()[1..-1]).join("-"), k.split("_").reverse()[0],v ] : null }
     templates = templates.groupBy( { template -> template[0] })
+
+    def taskTemplates = []
 
     for ( String key in templates.keySet() ) {
         def String s3Bucket = ""
         def String definitionFile = ""
 
-        def String localFile = "/tmp/${key}.config"
+        def String localFile = "/tmp/taskDefinition-${key}.config"
 
         properties = templates.get(key)
         for ( property in properties ) { 
@@ -168,42 +163,106 @@ private ECSTaskTemplate getECSTaskTemplates() {
             }
         }
 
-        Logger.global.info(s3Bucket)
-        Logger.global.info(definitionFile)
-
         AmazonS3 s3 = 
         AmazonS3ClientBuilder.standard()
                              .withRegion("ap-southeast-2") // The first region to try your request against
                              .withForceGlobalBucketAccessEnabled(true) // If a bucket is in a different region, try again in the correct region
                              .build();
-
-        ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
-                .withBucketName(s3Bucket)
-                .withEncodingType("url");
-
-        List objects = s3.listObjects(listObjectsRequest)
-        for (Bucket object in objects) {
-             Logger.global.info("* " + object.getName());
-        }
-
         try {
-            
             S3Object o = s3.getObject(s3Bucket, definitionFile);
             S3ObjectInputStream s3is = o.getObjectContent();
+            FileOutputStream fos = new FileOutputStream(new File(localFile));
+            byte[] read_buf = new byte[1024];
+            int read_len = 0;
+            while ((read_len = s3is.read(read_buf)) > 0) {
+                fos.write(read_buf, 0, read_len);
+            }
+            s3is.close();
+            fos.close();
+        } catch (AmazonServiceException e) {
+            Logger.global.info(e.getErrorMessage());
+        } catch (FileNotFoundException e) {
+            Logger.global.info(e.getErrorMessage());
+        } catch (IOException e) {
+            Logger.global.info(e.getErrorMessage());
+        }
 
-            } catch (AmazonServiceException e) {
-                Logger.global.info(e.getErrorMessage());
-            } catch (FileNotFoundException e) {
-                Logger.global.info(e.getErrorMessage());
-            } catch (IOException e) {
-                Logger.global.info(e.getErrorMessage());
+        def configFile = new File(localFile)
+        def configJson = new JsonSlurper().parseText(configFile.text)
+
+        Logger.global.info(configJson.toMapString())
+        
+        for ( containerDefinition in configJson.ContainerDefinitions ) {
+            Logger.global.info("Building S3 container definition for ${containerDefinition.Name}")
+            
+            def mountPoints = []
+            for ( mountPoint in containerDefinition.MountPoints) {
+                mountPoints.push(new MountPointEntry(
+                    name = mountPoint.ContainerPath.Join("-"),
+                    sourcePath = mountPoint.SourceVolume,
+                    containerPath = mountPoint.ContainerPath,
+                    readOnly = mountPoint.ReadOnly
+                ))
             }
 
-            def InputJSON = new JsonSlurper().parse(s3is)
-            
-            s3is.close();
-            
-            InputJSON.each{ Logger.global.info( it )}
+            def environmentVariables = []
+            for ( environmentVariable in containerDefinition.Environment ) {
+                environmentVariables.push( new EnvironmentEntry(
+                    name = environmentVariable.Name,
+                    value = environmentVariable.Value
+                ))
+            }
 
+            def logDriverOptions = []
+            containerDefinition.LogConfiguration.Options.each {  k, v -> logDriverOptions.push( new LogDriverOption( name=k, value=v))}
+            
+            def portMappings = []
+            for ( portMapping in containerDefinition.PortMappings ) {
+                portMappings.push( new PortMappingEntry( 
+                    containerPort = portMapping.ContainerPort,
+                    hostPort = portMapping.HostPort, 
+                    protocol = "tcp"
+                ))
+            }
+
+            def extraHosts = []
+            for ( host in containerDefinition.ExtraHosts ) {
+                extraHosts.push( new ExtraHostEntry(
+                    ipAddress = host.IpAddress
+                    hostname = host.Hostname
+                ))
+            }
+
+            taskTemplate = new ECSTaskTemplate(
+                    templateName = containerDefinition.Name,
+                    label = containerDefinition.Name,
+                    image = containerDefinition.Image,
+                    remoteFSRoot = "/home/jenkins",
+                    //memory reserved
+                    memory = containerDefinition.Memory,
+                    //soft memory
+                    memoryReservation = containerDefinition.MemoryReservation,
+                    cpu = containerDefinition.Cpu,
+                    privileged = false,
+                    containerUser = null,
+                    logDriverOptions = logDriverOptions ?: null,
+                    environments = environmentVariables ?: null,
+                    extraHosts = extraHosts ?: null,
+                    mountPoints = mountPoints ?: null,
+                    portMappings = portMappings ?: null 
+            
+                )
+            if (configJson.TaskRoleArn )  {
+                taskTemplate.setTaskrole(configJson.TaskRoleArn)
+            }
+
+            if (containerDefinition.LogConfiguration.LogDriver ) { 
+                taskTemplate.setLogDriver(containerDefinition.LogConfiguration.LogDriver )
+            }
+
+            taskTemplates.push(taskTemplate)
+            
+        }
     }
+    return taskTemplates
 }
