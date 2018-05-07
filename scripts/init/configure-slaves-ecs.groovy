@@ -90,7 +90,7 @@ private void configureCloud( ) {
         // S3 Configuration file based Templates 
         ecsTemplates += getS3ECSTaskTemplates()
 
-        Logger.global.info( "Found ${ecsTemplates.Size()} Task Definitions" )
+        Logger.global.info( "Found ${ecsTemplates.size()} Task Definitions" )
 
         String envClusterArn = getClusterArn()
         String clusterArn = queryJenkinsClusterArn(region, envClusterArn)
@@ -140,7 +140,7 @@ private ECSTaskTemplate createECSTaskTemplate(String label, String image, int so
 private ArrayList<ECSTaskTemplate> getS3ECSTaskTemplates() {
 
     def env = System.getenv()
-    def templates = env.findResults {  k, v -> k.startsWith("SLAVE") == true ? [ (k.split("_").reverse()[1..-1]).join("-"), k.split("_").reverse()[0],v ] : null }
+    def templates = env.findResults {  k, v -> k.startsWith("SLAVE") == true ? [ k.split("_").reverse()[1..-1].join("-"), k.split("_").reverse()[0],v ] : null }
     templates = templates.groupBy( { template -> template[0] })
 
     def taskTemplates = []
@@ -189,17 +189,18 @@ private ArrayList<ECSTaskTemplate> getS3ECSTaskTemplates() {
 
         def configFile = new File(localFile)
         def configJson = new JsonSlurper().parseText(configFile.text)
-
-        Logger.global.info(configJson.toMapString())
         
         for ( containerDefinition in configJson.ContainerDefinitions ) {
             Logger.global.info("Building S3 container definition for ${containerDefinition.Name}")
             
             def mountPoints = []
             for ( mountPoint in containerDefinition.MountPoints) {
+
+                sourceVolume = configJson.Volumes.find { volume -> volume.Name == mountPoint.SourceVolume }
+                
                 mountPoints.push(new MountPointEntry(
-                    name = mountPoint.ContainerPath.Join("-"),
-                    sourcePath = mountPoint.SourceVolume,
+                    name = mountPoint.ContainerPath.minus("/").replaceAll("/", "-"),
+                    sourcePath = sourceVolume.Host.SourcePath,
                     containerPath = mountPoint.ContainerPath,
                     readOnly = mountPoint.ReadOnly
                 ))
