@@ -27,8 +27,8 @@ gradle
 
 # install Pipelines and Continuous Delivery plugins
 # These are pretty big plugins so they have specific versions set to reduce potential issues
-workflow-aggregator:2.5
-pipeline-stage-view:2.10
+workflow-aggregator
+pipeline-stage-view
 
 # Install CodeOnTap Specific Plugins
 slack
