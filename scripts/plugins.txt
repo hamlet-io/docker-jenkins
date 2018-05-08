@@ -38,7 +38,7 @@ envinject
 parameterized-trigger
 
 # Docker Plugins
- docker-plugin
+docker-plugin
 
 # AWS Specific plugins 
 aws-java-sdk
