@@ -23,10 +23,11 @@ RUN chown -R jenkins:jenkins /var/cache/jenkins
 
 # Install OS Packages
 RUN apt-get update && apt-get install -y \
-    build-essential \
     curl \
     docker \
     dos2unix \
+    tar zip unzip \
+    less vim tree \
     git \
     jq \
  && rm -rf /var/lib/apt/lists/*
