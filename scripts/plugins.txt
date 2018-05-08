@@ -37,6 +37,9 @@ build-user-vars-plugin
 envinject
 parameterized-trigger
 
+# Docker Plugins
+ docker-plugin
+
 # AWS Specific plugins 
 aws-java-sdk
 aws-credentials

@@ -7,9 +7,10 @@ COPY scripts/init/ /usr/share/jenkins/ref/init.groovy.d/
 RUN find /usr/share/jenkins/ref/init.groovy.d/ -type f -exec mv '{}' '{}'.override \;
 
 # install plugins specified in https://github.com/kohsuke/jenkins/blob/master/core/src/main/resources/jenkins/install/platform-plugins.json
-
 COPY scripts/plugins.txt /usr/share/jenkins/ref/plugins.txt
 RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
+
+COPY scripts/log.properties /usr/share/jenkins/ref/log.properties
 
 # Container Configuration 
 USER root
@@ -51,7 +52,7 @@ ENV GITHUBAUTH_SECRET=""
 ENV TIMEZONE="Australia/Sydney"
 ENV MAXMEMORY="4096m"
 
-ENV JAVA_OPTS="-Dhudson.DNSMultiCast.disabled=true -Djenkins.install.runSetupWizard=false"
+ENV JAVA_OPTS="-Dhudson.DNSMultiCast.disabled=true -Djenkins.install.runSetupWizard=false -Djava.util.logging.config.file=/usr/share/jenkins/ref/log.properties"
 ENV JAVA_OPTS="${JAVA_OPTS} -Dorg.apache.commons.jelly.tags.fmt.timeZone=${TIMEZONE}"
 ENV JAVA_OPTS="${JAVA_OPTS} -Xmx${MAXMEMORY}"
 
