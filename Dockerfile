@@ -24,7 +24,7 @@ RUN chown -R jenkins:jenkins /var/cache/jenkins
 # Install OS Packages
 RUN apt-get update && apt-get install -y \
     curl \
-    docker \
+    apt-utils \
     dos2unix \
     tar zip unzip \
     less vim tree \
