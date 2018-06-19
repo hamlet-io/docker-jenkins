@@ -127,7 +127,7 @@ switch ( securityRealm ) {
             )
         } else if ( samlMetadataUrl ) { 
             def samlIdpMetadata = new IdpMetadataConfiguration(
-                null
+                null,
                 samlMetadataUrl,
                 samlMetadataPeriod
             )
