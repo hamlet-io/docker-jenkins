@@ -158,7 +158,7 @@ private ArrayList<ECSTaskTemplate> getEnvTaskTemplates() {
                 memory = 1,
                 //soft memory
                 memoryReservation = 0,
-                cpu = 1
+                cpu = 1,
                 privileged = false,
                 containerUser = null,
                 logDriverOptions = null,
