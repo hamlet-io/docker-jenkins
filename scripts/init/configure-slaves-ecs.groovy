@@ -158,6 +158,13 @@ private ArrayList<ECSTaskTemplate> getEnvTaskTemplates() {
                 //soft memory
                 memoryReservation = 0,
                 cpu = 1
+                privileged = false,
+                containerUser = null,
+                logDriverOptions = null,
+                environments = null,
+                extraHosts = null,
+                mountPoints = null,
+                portMappings = null
             )
 
         taskTemplates.push(taskTemplate)
