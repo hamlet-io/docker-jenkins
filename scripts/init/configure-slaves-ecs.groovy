@@ -102,7 +102,7 @@ private void configureCloud( ) {
     }
 }
 
-private ECSTaskTemplate createECSTaskTemplate(String label, String image, int softMemory, int cpu) {
+private ECSTaskTemplate createECSTaskTemplate(String label, String image, String launchType, int softMemory, int cpu) {
     Logger.global.info("Creating ECS Template '$label' for image '$image' (memory: softMemory, cpu: $cpu)")
 
     new ECSTaskTemplate(
@@ -113,6 +113,7 @@ private ECSTaskTemplate createECSTaskTemplate(String label, String image, int so
             //memory reserved
             memory = 0,
             //soft memory
+            launchType=launchType,
             memoryReservation = softMemory,
             cpu = cpu,
             privileged = false,
