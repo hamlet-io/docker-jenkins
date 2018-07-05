@@ -149,16 +149,20 @@ private ArrayList<ECSTaskTemplate> getEnvTaskTemplates() {
         }        
 
         taskTemplate = new ECSTaskTemplate(
+                templateName = key.toLowerCase(),
                 label = key.toLowerCase(),
                 taskDefinitionOverride=definitionName,
-                launchType="EC2",
                 image="jenkinsci/jnlp-slave",
+                launchType="EC2",
                 remoteFSRoot = "/home/jenkins",
                 //memory reserved
                 memory = 1,
                 //soft memory
                 memoryReservation = 0,
                 cpu = 1,
+                subnets = null,
+                securityGroups = null,
+                assignPublicIp = false,
                 privileged = false,
                 containerUser = null,
                 logDriverOptions = null,

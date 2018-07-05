@@ -52,9 +52,10 @@ ENV GITHUBAUTH_SECRET=""
 
 ENV TIMEZONE="Australia/Sydney"
 ENV MAXMEMORY="4096m"
+ENV JAVA_OPTS=""
 
-ENV JAVA_OPTS="-Dhudson.DNSMultiCast.disabled=true -Djenkins.install.runSetupWizard=false -Djava.util.logging.config.file=/usr/share/jenkins/ref/log.properties"
-ENV JAVA_OPTS="${JAVA_OPTS} -Dorg.apache.commons.jelly.tags.fmt.timeZone=${TIMEZONE}"
+ENV JAVA_OPTS="${JAVA_OPTS} -Dhudson.DNSMultiCast.disabled=true -Djenkins.install.runSetupWizard=false -Djava.util.logging.config.file=/usr/share/jenkins/ref/log.properties"
+ENV JAVA_OPTS="${JAVA_OPTS} -Dorg.apache.commons.jelly.tags.fmt.timeZone=${TIMEZONE} -Duser.timezone=${TIMEZONE}"
 ENV JAVA_OPTS="${JAVA_OPTS} -Xmx${MAXMEMORY}"
 
 # Set environmental configuration for Jenkins

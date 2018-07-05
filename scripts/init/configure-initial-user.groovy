@@ -2,7 +2,7 @@ import jenkins.model.*;
 import hudson.security.*;
 import java.util.logging.Logger;
 
-import org.jenkinsci.plugins.saml;
+import org.jenkinsci.plugins.saml.*;
 
 import org.jenkinsci.plugins.GithubSecurityRealm;
 import net.sf.json.JSONObject;
@@ -34,8 +34,8 @@ def String samlAttrGroup = env.SAMLAUTH_ATTR_GROUP ?: SamlSecurityRealm.DEFAULT_
 def String samlAttrEmail = env.SAMLAUTH_ATTR_EMAIL
 def String samlLogoutUrl = env.SAMLAUTH_LOGOUT_URL
 def String samlLifeTimeMax = env.SAMLAUTH_LIFETIME_MAX ?: SamlSecurityRealm.DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME
-def String samlBinding = env.SAMLAUTH.BINDING
-def String samlUserCase = env.SAMLAUTH.USERCASE ?: SamlSecurityRealm.DEFAULT_USERNAME_CASE_CONVERSION
+def String samlBinding = env.SAMLAUTH_BINDING
+def String samlUserCase = env.SAMLAUTH_USERCASE ?: SamlSecurityRealm.DEFAULT_USERNAME_CASE_CONVERSION
 
 if (jenkinsPassword) { 
     Logger.global.info("Attempting Decryption of jenkinsPassword")
