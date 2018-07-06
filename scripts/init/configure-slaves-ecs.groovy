@@ -42,7 +42,14 @@ if ( env.JENKINSENV_SLAVEPROVIDER == "ecs" ) {
 }
 
 private String getRegion() {
-    EC2MetadataUtils.instanceInfo.region
+
+    def env =  System.getenv()
+    def region = EC2MetadataUtils.getEC2InstanceRegion() ?: env.DEFAULT_AWS_REGION
+}
+
+private String getClusterArn() {
+    def env = System.getenv()
+    return env.ECS_ARN
 }
 
 private getClientConfiguration() {
@@ -54,15 +61,16 @@ private String getJenkinsURL() {
     return globalConfig.getUrl()
 }
 
-private String getClusterArn() {
-    def env = System.getenv()
-    return env.ECS_ARN
-}
-
 private String queryJenkinsClusterArn(String regionName, String clusterArn) {
-    AmazonECSClient client = new AmazonECSClient(clientConfiguration)
-    client.setRegion(RegionUtils.getRegion(regionName))
-    client.listClusters().getClusterArns().find { it.contains(clusterArn) }
+
+    if ( clusterArn.startsWith("arn:") ) {
+        return clusterArn 
+    } 
+    else { 
+        AmazonECSClient client = new AmazonECSClient(clientConfiguration)
+        client.setRegion(RegionUtils.getRegion(regionName))
+        return client.listClusters().getClusterArns().find { it.contains(clusterArn) }
+    }
 }
 
 private void configureCloud( ) {
@@ -79,7 +87,6 @@ private void configureCloud( ) {
         ecsTemplates += getEnvTaskTemplates()
 
         Logger.global.info( "Found ${ecsTemplates.size()} Task Definitions" )
-
         String envClusterArn = getClusterArn()
         String clusterArn = queryJenkinsClusterArn(region, envClusterArn)
 
@@ -129,6 +136,7 @@ private ECSTaskTemplate createECSTaskTemplate(String label, String image, String
 private ArrayList<ECSTaskTemplate> getEnvTaskTemplates() {
 
     def env = System.getenv()
+    def remoteFS = env.AGENT_REMOTE_FS
     def templates = env.findResults {  k, v -> k.startsWith("SLAVE") == true ? [ k.split("_").reverse()[1..-1].join("-"), k.split("_").reverse()[0],v ] : null }
     templates = templates.groupBy( { template -> template[0] })
 
@@ -154,7 +162,7 @@ private ArrayList<ECSTaskTemplate> getEnvTaskTemplates() {
                 taskDefinitionOverride=definitionName,
                 image="jenkinsci/jnlp-slave",
                 launchType="EC2",
-                remoteFSRoot = "/home/jenkins",
+                remoteFSRoot = remoteFS,
                 //memory reserved
                 memory = 1,
                 //soft memory
