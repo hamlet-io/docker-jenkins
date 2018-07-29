@@ -32,12 +32,14 @@ import java.util.logging.Logger;
 
 def env = System.getenv()
 
+Logger.global.info("[Running] Creating agent definition using provider: " + env.JENKINSENV_SLAVEPROVIDER )
+
 if ( env.JENKINSENV_SLAVEPROVIDER == "ecs" ) { 
     
-    Logger.global.info("[Running] Configuring ECS as slave provider")
+    Logger.global.info("[Running] Configuring ECS as agent provider")
     configureCloud()
     Jenkins.instance.save()
-    Logger.global.info("[Done] ECS Slave Provider configuraton finished ")
+    Logger.global.info("[Done] ECS agent provider configuraton finished ")
 
 }
 
@@ -90,7 +92,7 @@ private void configureCloud( ) {
         String envClusterArn = getClusterArn()
         String clusterArn = queryJenkinsClusterArn(region, envClusterArn)
 
-        Logger.global.info("Creating ECS Cloud for $clusterArn")
+        Logger.global.info("Creating ECS cloud for $clusterArn")
         def ecsCloud = new ECSCloud(
                 name = "jenkins_cluster",
                 templates = ecsTemplates,
@@ -144,6 +146,9 @@ private ArrayList<ECSTaskTemplate> getEnvTaskTemplates() {
 
     for ( String key in templates.keySet() ) {
 
+        def ecsHost = ""
+        def definitionName = ""
+
         properties = templates.get(key)
         for ( property in properties ) { 
             switch (property[1]) { 
@@ -159,9 +164,9 @@ private ArrayList<ECSTaskTemplate> getEnvTaskTemplates() {
         taskTemplate = new ECSTaskTemplate(
                 templateName = key.toLowerCase(),
                 label = key.toLowerCase(),
-                taskDefinitionOverride=definitionName,
-                image="jenkinsci/jnlp-slave",
-                launchType="EC2",
+                taskDefinitionOverride = definitionName,
+                image = "jenkinsci/jnlp-slave",
+                launchType = "EC2",
                 remoteFSRoot = remoteFS,
                 //memory reserved
                 memory = 1,
