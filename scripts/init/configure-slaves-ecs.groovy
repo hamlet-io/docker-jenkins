@@ -139,8 +139,10 @@ private ArrayList<ECSTaskTemplate> getEnvTaskTemplates() {
 
     def env = System.getenv()
     def remoteFS = env.AGENT_REMOTE_FS ?: "/home/jenkins"
-    def templates = env.findResults {  k, v -> k.startsWith("SLAVE") == true ? [ k.split("_").reverse()[0..-1].join("-"), k.split("_").reverse()[0],v ] : null }
+    def templates = env.findResults {  k, v -> k.startsWith("SLAVE") == true ? [ k.split("_")[1..-1].reverse()[1..-1].reverse().join("-"), k.split("_").reverse()[0],v ] : null }
     templates = templates.groupBy( { template -> template[0] })
+
+    Logger.global.info(" '$templates' ")
 
     def taskTemplates = []
 
