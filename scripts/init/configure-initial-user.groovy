@@ -177,7 +177,7 @@ private String getKMSDecryptedString( String encryptedString ) {
     try {
 
         AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
-
+        
 		ByteBuffer cipherText = ByteBuffer.wrap(Base64.decode(encryptedString));
         DecryptRequest decryptRequest = new DecryptRequest().withCiphertextBlob(cipherText);
         ByteBuffer plainText = kmsClient.decrypt(decryptRequest).getPlaintext();
@@ -188,5 +188,6 @@ private String getKMSDecryptedString( String encryptedString ) {
     }
     catch (all) { 
         Logger.global.info("Couldn't decrypt string - using as plaintext")
+        Logger.global.info("$all.message")
     }
 }
