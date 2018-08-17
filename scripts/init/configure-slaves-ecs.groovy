@@ -167,7 +167,7 @@ private ArrayList<ECSTaskTemplate> getEnvTaskTemplates() {
                 templateName = key.toLowerCase(),
                 label = key.toLowerCase(),
                 taskDefinitionOverride = definitionName,
-                image = "jenkinsci/jnlp-slave",
+                image = "codeontap/gen3-jenkins-slave",
                 launchType = "EC2",
                 remoteFSRoot = remoteFS,
                 //memory reserved
