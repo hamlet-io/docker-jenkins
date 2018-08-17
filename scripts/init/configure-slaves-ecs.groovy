@@ -171,10 +171,10 @@ private ArrayList<ECSTaskTemplate> getEnvTaskTemplates() {
                 launchType = "EC2",
                 remoteFSRoot = remoteFS,
                 //memory reserved
-                memory = 1,
+                memory = 0,
                 //soft memory
-                memoryReservation = 0,
-                cpu = 1,
+                memoryReservation = 128,
+                cpu = 128,
                 subnets = null,
                 securityGroups = null,
                 assignPublicIp = false,
