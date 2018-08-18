@@ -35,9 +35,13 @@ def env = System.getenv()
 Logger.global.info("[Running] Creating agent definition using provider: " + env.JENKINSENV_SLAVEPROVIDER )
 
 if ( env.JENKINSENV_SLAVEPROVIDER == "ecs" ) { 
-    
+
+    def String defaultTaskCPU = env.SLAVE_DEFAULT_CPU ?: "128"
+    def String defaultTaskSoftMemory = env.SLAVE_DEFAULT_SOFT_MEMORY ?: "128"
+    def String defaultTaskHardMemory = env.SLAVE_DEFAULT_HARD_MEMORY ?: "0"
+
     Logger.global.info("[Running] Configuring ECS as agent provider")
-    configureCloud()
+    configureCloud(defaultTaskCPU.toInteger(), defaultTaskSoftMemory.toInteger(), defaultTaskHardMemory.toInteger())
     Jenkins.instance.save()
     Logger.global.info("[Done] ECS agent provider configuraton finished ")
 
@@ -75,18 +79,18 @@ private String queryJenkinsClusterArn(String regionName, String clusterArn) {
     }
 }
 
-private void configureCloud( ) {
+private void configureCloud( int defaultTaskCPU, int defaultTaskSoftMemory, int defaultTaskHardMemory ) {
     try {
         Logger.global.info("Building ECS Task Definition Templates")
 
         // Explicit Task Definitions 
         def ecsTemplates = templates = Arrays.asList(
-            //createECSTaskTemplate('codeontap-something', 'codeontap/gen3:jenkinsslave-stable', 512, 1024),
-            //createECSTaskTemplate('codeontap-latest', 'codeontap/gen3:jenkinsslave-latest', 512, 1024),
+            //createECSTaskTemplate('codeontap-something', 'codeontap/gen3:jenkinsslave-stable', defaultTaskCPU, defaultTaskSoftMemory),
+            //createECSTaskTemplate('codeontap-latest', 'codeontap/gen3:jenkinsslave-latest', defaultTaskCPU, defaultTaskSoftMemory),
         )
 
         // Environment Variable based tasks using existing defintions 
-        ecsTemplates += getEnvTaskTemplates()
+        ecsTemplates += getEnvTaskTemplates(defaultTaskCPU, defaultTaskSoftMemory, defaultTaskHardMemory )
 
         Logger.global.info( "Found ${ecsTemplates.size()} Task Definitions" )
         String envClusterArn = getClusterArn()
@@ -135,7 +139,7 @@ private ECSTaskTemplate createECSTaskTemplate(String label, String image, String
     )
 }
 
-private ArrayList<ECSTaskTemplate> getEnvTaskTemplates() {
+private ArrayList<ECSTaskTemplate> getEnvTaskTemplates( int cpu, int softMemory, int hardMemory) {
 
     def env = System.getenv()
     def remoteFS = env.AGENT_REMOTE_FS ?: "/home/jenkins"
@@ -171,10 +175,10 @@ private ArrayList<ECSTaskTemplate> getEnvTaskTemplates() {
                 launchType = "EC2",
                 remoteFSRoot = remoteFS,
                 //memory reserved
-                memory = 0,
+                memory = hardMemory,
                 //soft memory
-                memoryReservation = 128,
-                cpu = 128,
+                memoryReservation = softMemory,
+                cpu = cpu,
                 subnets = null,
                 securityGroups = null,
                 assignPublicIp = false,
