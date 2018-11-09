@@ -43,4 +43,4 @@ docker-plugin
 # AWS Specific plugins 
 aws-java-sdk
 aws-credentials
-amazon-ecs
+amazon-ecs=1.16
