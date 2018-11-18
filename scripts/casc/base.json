@@ -1,0 +1,33 @@
+{
+  "jenkins": {
+    "agentProtocols": [
+      "JNLP4-connect",
+      "Ping"
+    ],
+    "slaveAgentPort": 50000,
+    "globalNodeProperties": [
+      {
+        "envInject": {
+          "propertiesFilePath": "/var/opt/codeontap/site.properties",
+          "unsetSystemVariables": false
+        }
+      }
+    ],
+    "crumbIssuer": {
+      "standard": {
+        "excludeClientIPFromCrumb": true
+      }
+    }
+  },
+  "security": {
+    "remotingCLI": {
+      "enabled": false
+    }
+  },
+  "unclassified": {
+    "location": {
+      "adminAddress": "${JENKINS_ADMIN:-root@local.host}",
+      "url": "${JENKINS_URL:-http://localhost:8080}"
+    }
+  }
+}

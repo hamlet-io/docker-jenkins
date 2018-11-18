@@ -13,6 +13,7 @@ matrix-auth
 pam-auth
 github-oauth
 saml
+oic-auth
 
 # install Source Code Management plugins
 git
@@ -36,9 +37,13 @@ extended-choice-parameter
 build-user-vars-plugin
 envinject
 parameterized-trigger
+generic-webhook-trigger
 
-# Docker Plugins
-docker-plugin
+configuration-as-code
+configuration-as-code-support
+
+# Monitoring
+metrics
 
 # AWS Specific plugins 
 aws-java-sdk
