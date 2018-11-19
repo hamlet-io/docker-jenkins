@@ -10,16 +10,21 @@ RUN find /usr/share/jenkins/ref/init.groovy.d/ -type f -exec mv '{}' '{}'.overri
 COPY scripts/plugins.txt /usr/share/jenkins/ref/plugins.txt
 RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
 
-COPY scripts/log.properties /usr/share/jenkins/ref/log.properties
+COPY scripts/casc/ /usr/share/jenkins/ref/casc_configs
 
 # Container Configuration 
 USER root
 
 # Create extra volumes for logging and WAR cache location to allow for updates as part of master docker image 
-RUN mkdir /var/log/jenkins
-RUN mkdir /var/cache/jenkins
+RUN mkdir -p /var/opt/codeontap/ 
+RUN mkdir -p /var/log/jenkins
+RUN mkdir -p /var/cache/jenkins
+
+RUN touch /var/opt/codeontap/site.properties
+
 RUN chown -R jenkins:jenkins /var/log/jenkins
 RUN chown -R jenkins:jenkins /var/cache/jenkins
+RUN chown -R jenkins:jenkins /var/opt/codeontap/ 
 
 # Install OS Packages
 RUN apt-get update && apt-get install -y \
@@ -36,7 +41,6 @@ RUN apt-get update && apt-get install -y \
 USER jenkins
 
 ENV JENKINS_URL=""
-ENV JENKINSLB_URL=""
 
 ENV JENKINSENV_SLAVEPROVIDER="ecs"
 
@@ -52,15 +56,18 @@ ENV GITHUBAUTH_SECRET=""
 
 ENV AGENT_REMOTE_FS="/home/jenkins"
 
+ENV CASC_JENKINS_CONFIG="/usr/share/jenkins/ref/casc_configs"
+
 ENV TIMEZONE="Australia/Sydney"
 ENV MAXMEMORY="4096m"
 ENV JAVA_OPTS="-Dhudson.DNSMultiCast.disabled=true \
                 -Djenkins.install.runSetupWizard=false \
-                -Djava.util.logging.config.file=/usr/share/jenkins/ref/log.properties \
                 -Dorg.apache.commons.jelly.tags.fmt.timeZone=${TIMEZONE} \
                 -Duser.timezone=${TIMEZONE} \
                 -Xmx${MAXMEMORY} \
-                -Dhudson.slaves.ChannelPinger.pingIntervalSeconds=300 -Dhudson.slaves.ChannelPinger.pingTimeoutSeconds=30 ${JAVA_EXTRA_OPS}"
+                -Dhudson.slaves.ChannelPinger.pingIntervalSeconds=300 \
+                -Dhudson.slaves.ChannelPinger.pingTimeoutSeconds=30 \
+                ${JAVA_EXTRA_OPS}"
 
 # Set environmental configuration for Jenkins
-ENV JENKINS_OPTS="--logfile=/var/log/jenkins/jenkins.log --webroot=/var/cache/jenkins/war"
+ENV JENKINS_OPTS="--webroot=/var/cache/jenkins/war"
