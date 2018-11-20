@@ -3,10 +3,6 @@ jenkins:
     - 'JNLP4-connect'
     - 'Ping'
   slaveAgentPort: 50000
-  globalNodeProperties:
-    - envInject:
-        propertiesFilePath: "/var/opt/codeontap/site.properties"
-        unsetSystemVariables: false
   crumbIssuer:
     standard:
       excludeClientIPFromCrumb: true
