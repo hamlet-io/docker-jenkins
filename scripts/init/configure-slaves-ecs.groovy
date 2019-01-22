@@ -104,7 +104,7 @@ private void configureCloud( int defaultTaskCPU, int defaultTaskSoftMemory, int 
                 cluster = clusterArn,
                 regionName = region,
                 jenkinsUrl = null,
-                slaveTimoutInSeconds = 60
+                slaveTimoutInSeconds = 300
         )
 
         Jenkins.instance.clouds.clear()
