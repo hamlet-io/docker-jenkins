@@ -67,6 +67,9 @@ ENV JAVA_OPTS="-Dhudson.DNSMultiCast.disabled=true \
                 -Xmx${MAXMEMORY} \
                 -Dhudson.slaves.ChannelPinger.pingIntervalSeconds=300 \
                 -Dhudson.slaves.ChannelPinger.pingTimeoutSeconds=30 \
+                -Dhudson.slaves.NodeProvisioner.initialDelay=0 \
+                -Dhudson.slaves.NodeProvisioner.MARGIN=50 \
+                -Dhudson.slaves.NodeProvisioner.MARGIN0=0.85 \
                 ${JAVA_EXTRA_OPS}"
 
 # Set environmental configuration for Jenkins
