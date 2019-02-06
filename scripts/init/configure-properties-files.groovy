@@ -51,7 +51,7 @@ for(S3ObjectSummary s3ObjectSummary : s3ObjectSummaries)
         
         String localFileName = localPath + s3ObjectKey.split("/")[-1]
 
-        if ( localFileName != (localPath + "site.properties") ) {
+        if ( localFileName != (localPath + "site.properties") && localFileName.endsWith(".properties") ) {
             localFileName = localFileName + ".tmp"
         } 
     
