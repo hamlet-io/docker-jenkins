@@ -7,7 +7,7 @@ jenkins:
     standard:
       excludeClientIPFromCrumb: true
   remotingSecurity:
-    enabled: false
+    enabled: true
 
 security:
   remotingCLI: 

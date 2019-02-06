@@ -48,14 +48,19 @@ for(S3ObjectSummary s3ObjectSummary : s3ObjectSummaries)
 {
     try {
         String s3ObjectKey = s3ObjectSummary.getKey();
+        
         String localFileName = localPath + s3ObjectKey.split("/")[-1]
+
+        if ( localFileName != (localPath + "site.properties") ) {
+            localFileName = localFileName + ".tmp"
+        } 
     
         S3Object o = s3.getObject(opsS3Bucket, s3ObjectKey);
         S3ObjectInputStream s3is = o.getObjectContent();
         
         Logger.global.info("Adding file to $localFileName")
 
-        FileOutputStream fos = new FileOutputStream(new File(localFileName));
+        FileOutputStream fos = new FileOutputStream( new File(localFileName) );
         byte[] read_buf = new byte[1024];
         int read_len = 0;
         while ((read_len = s3is.read(read_buf)) > 0) {
@@ -63,10 +68,13 @@ for(S3ObjectSummary s3ObjectSummary : s3ObjectSummaries)
         }
         s3is.close();
         fos.close();
+
+        new File(localFileName).setWritable(true, true); 
+
     } catch (AmazonServiceException e) {
         Logger.global.info(e.getErrorMessage());
     } catch (FileNotFoundException e) {
-        Logger.global.info(e.getErrorMessage());
+        Logger.global.info(e.getMessage());
     } catch (IOException e) {
         Logger.global.info(e.getErrorMessage());
     }
@@ -74,15 +82,14 @@ for(S3ObjectSummary s3ObjectSummary : s3ObjectSummaries)
 
 // Merge site.properties into other properties files 
 def String sitePropertiesFile = env.PROPERTIES_SITE_FILE ?: "site.properties"
-
-def propertiesFiles = new FileNameFinder().getFileNames(localPath, '**/*.properties', "**/$sitePropertiesFile") 
+def propertiesFiles = new FileNameFinder().getFileNames(localPath, '**/*.properties.tmp', "**/$sitePropertiesFile") 
 
 // Get a writer to your new file
 [ propertiesFiles ].each { propFile -> 
-  new File( "$propFile" ).withWriter { w ->
+    new File( (propFile[0]).minus(".tmp") ).withWriter { w ->
 
     // For each input file path
-    [ "$localPath/$sitePropertiesFile" ].each { f ->
+    [ "$localPath/$sitePropertiesFile", propFile[0] ].each { f ->
         
       // Get a reader for the input file
       new File( f ).withReader { r ->
@@ -93,4 +100,5 @@ def propertiesFiles = new FileNameFinder().getFileNames(localPath, '**/*.propert
 
     }
   }
+  new File( propFile[0]).delete()
 }
