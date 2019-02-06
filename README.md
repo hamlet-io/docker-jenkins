@@ -1,6 +1,6 @@
 # Jenkins Master for Codeontap
 
-This container provides a standard Jenkins install which we recommend for CodeOnTap ( https://codeontap.io ) deployments.
+This container provides a standard Jenkins install which we recommended for CodeOnTap ( https://codeontap.io ) deployments.
 The container also supports deployment using the CodeOnTap framework along with using this Jenkins server to deploy other products.
 
 ## Environment Variables
