@@ -40,7 +40,8 @@ RUN apt-get update && apt-get install -y \
 # Change back to jenkins user to run jenkins
 USER jenkins
 
-ENV JENKINS_URL=""
+ENV JENKINS_URL="http://localhost:8080"
+ENV JENKINS_ADMIN="root@local.host"
 
 ENV JENKINSENV_SLAVEPROVIDER="ecs"
 
@@ -59,7 +60,7 @@ ENV AGENT_REMOTE_FS="/home/jenkins"
 ENV CASC_JENKINS_CONFIG="/usr/share/jenkins/ref/casc_configs"
 
 ENV TIMEZONE="Australia/Sydney"
-ENV MAXMEMORY="4096m"
+ENV MAXMEMORY="2048m"
 ENV JAVA_OPTS="-Dhudson.DNSMultiCast.disabled=true \
                 -Djenkins.install.runSetupWizard=false \
                 -Dorg.apache.commons.jelly.tags.fmt.timeZone=${TIMEZONE} \

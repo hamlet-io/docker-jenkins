@@ -6,6 +6,8 @@ jenkins:
   crumbIssuer:
     standard:
       excludeClientIPFromCrumb: true
+  remotingSecurity:
+    enabled: true
 
 security:
   remotingCLI: 
@@ -13,5 +15,5 @@ security:
 
 unclassified:
   location:
-    adminAddress: ${JENKINS_ADMIN:-root@local.host}
-    url: ${JENKINS_URL:-http://localhost:8080}
+    adminAddress: ${JENKINS_ADMIN}
+    url: ${JENKINS_URL}

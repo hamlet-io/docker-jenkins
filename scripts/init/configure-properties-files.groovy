@@ -21,10 +21,11 @@ import java.io.FileOutputStream;
 
 def env = System.getenv()
 
+def String localPath = "/var/opt/codeontap/"
+
+// Get files from S3
 def String opsS3Bucket = env.OPSDATA_BUCKET
 def String settingsPrefix = env.SETTINGS_PREFIX
-
-def String localPath = "/var/opt/codeontap/"
 
 AmazonS3 s3 = 
 AmazonS3ClientBuilder.standard()
@@ -69,4 +70,27 @@ for(S3ObjectSummary s3ObjectSummary : s3ObjectSummaries)
     } catch (IOException e) {
         Logger.global.info(e.getErrorMessage());
     }
+}
+
+// Merge site.properties into other properties files 
+def String sitePropertiesFile = env.PROPERTIES_SITE_FILE ?: "site.properties"
+
+def propertiesFiles = new FileNameFinder().getFileNames(localPath, '**/*.properties', "**/$sitePropertiesFile") 
+
+// Get a writer to your new file
+[ propertiesFiles ].each { propFile -> 
+  new File( "$propFile" ).withWriter { w ->
+
+    // For each input file path
+    [ "$localPath/$sitePropertiesFile" ].each { f ->
+        
+      // Get a reader for the input file
+      new File( f ).withReader { r ->
+  
+        // And write data from the input into the output
+        w << r << '\n'
+      }
+
+    }
+  }
 }
