@@ -85,11 +85,11 @@ def String sitePropertiesFile = env.PROPERTIES_SITE_FILE ?: "site.properties"
 def propertiesFiles = new FileNameFinder().getFileNames(localPath, '**/*.properties.tmp', "**/$sitePropertiesFile") 
 
 // Get a writer to your new file
-[ propertiesFiles ].each { propFile -> 
-    new File( (propFile[0]).minus(".tmp") ).withWriter { w ->
+propertiesFiles.each{ propFile -> 
+    new File( (propFile).minus(".tmp") ).withWriter { w ->
 
     // For each input file path
-    [ "$localPath/$sitePropertiesFile", propFile[0] ].each { f ->
+    [ "$localPath/$sitePropertiesFile", propFile ].each { f ->
         
       // Get a reader for the input file
       new File( f ).withReader { r ->
@@ -97,8 +97,8 @@ def propertiesFiles = new FileNameFinder().getFileNames(localPath, '**/*.propert
         // And write data from the input into the output
         w << r << '\n'
       }
-
     }
   }
-  new File( propFile[0]).delete()
+  Logger.global.info("removing" + propFile )
+  new File( propFile).delete()
 }
