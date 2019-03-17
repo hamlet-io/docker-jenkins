@@ -29,7 +29,14 @@ gradle
 # install Pipelines and Continuous Delivery plugins
 # These are pretty big plugins so they have specific versions set to reduce potential issues
 workflow-aggregator
+workflow-multibranch
 pipeline-stage-view
+github-branch-source
+pipeline-utility-steps
+
+# blueocean UI
+blueocean
+blueocean-github-pipeline
 
 # Install CodeOnTap Specific Plugins
 slack
@@ -49,3 +56,7 @@ metrics
 aws-java-sdk
 aws-credentials
 amazon-ecs:1.16
+
+# testing reports
+junit
+htmlpublisher
