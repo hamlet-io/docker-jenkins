@@ -8,6 +8,11 @@ jenkins:
       excludeClientIPFromCrumb: true
   remotingSecurity:
     enabled: true
+  numExecutors: ${JENKINS_MASTER_EXECUTORS}
+  quietPeriod: ${JENKINS_QUIET_PERIOD}
+  scmCheckoutRetryCount: ${JENKINS_SCM_RETRY_COUNT}
+  labelString: master
+  mode: EXCLUSIVE
 
 security:
   remotingCLI: 

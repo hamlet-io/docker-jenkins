@@ -171,7 +171,7 @@ private ArrayList<ECSTaskTemplate> getEnvTaskTemplates( int cpu, int softMemory,
                 templateName = key.toLowerCase(),
                 label = key.toLowerCase(),
                 taskDefinitionOverride = definitionName,
-                image = "gen3-jenkins-slave",
+                image = "gen3",
                 launchType = "EC2",
                 remoteFSRoot = remoteFS,
                 //memory reserved
