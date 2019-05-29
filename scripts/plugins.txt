@@ -56,3 +56,4 @@ amazon-ecs:1.16
 # testing reports
 junit
 htmlpublisher
+warnings-ng
