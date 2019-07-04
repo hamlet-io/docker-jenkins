@@ -14,10 +14,11 @@ jenkins:
   labelString: master
   mode: EXCLUSIVE
 
-security:
-  remotingCLI: 
-    enabled: false
 
+markupFormatter:
+  rawHtml:
+    disableSyntaxHighlighting: false 
+  
 unclassified:
   location:
     adminAddress: ${JENKINS_ADMIN}
