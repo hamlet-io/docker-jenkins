@@ -8,17 +8,17 @@ jenkins:
       excludeClientIPFromCrumb: true
   remotingSecurity:
     enabled: true
+  
+  markupFormatter:
+    rawHtml:
+      disableSyntaxHighlighting: true
+  
   numExecutors: ${JENKINS_MASTER_EXECUTORS}
   quietPeriod: ${JENKINS_QUIET_PERIOD}
   scmCheckoutRetryCount: ${JENKINS_SCM_RETRY_COUNT}
   labelString: master
   mode: EXCLUSIVE
 
-
-markupFormatter:
-  rawHtml:
-    disableSyntaxHighlighting: false 
-  
 unclassified:
   location:
     adminAddress: ${JENKINS_ADMIN}
