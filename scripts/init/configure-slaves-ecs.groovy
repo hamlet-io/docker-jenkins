@@ -96,6 +96,9 @@ private void configureCloud( int defaultTaskCPU, int defaultTaskSoftMemory, int 
         String envClusterArn = getClusterArn()
         String clusterArn = queryJenkinsClusterArn(region, envClusterArn)
 
+        String jnlpTunnel = env.AGENT_JNLP_TUNNEL ?: null
+        String jenkinsInternalUrl = env.AGENT_JENKINS_URL ?: null
+
         Logger.global.info("Creating ECS cloud for $clusterArn")
         def ecsCloud = new ECSCloud(
                 name = "jenkins_cluster",
@@ -103,7 +106,8 @@ private void configureCloud( int defaultTaskCPU, int defaultTaskSoftMemory, int 
                 credentialsId = '',
                 cluster = clusterArn,
                 regionName = region,
-                jenkinsUrl = null,
+                jenkinsUrl = jenkinsInternalUrl,
+                tunnel = jnlpTunnel,
                 slaveTimoutInSeconds = 300
         )
 
