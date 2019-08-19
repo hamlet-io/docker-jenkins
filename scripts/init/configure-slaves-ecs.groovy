@@ -108,9 +108,12 @@ private void configureCloud( int defaultTaskCPU, int defaultTaskSoftMemory, int 
                 cluster = clusterArn,
                 regionName = region,
                 jenkinsUrl = jenkinsInternalUrl,
-                tunnel = jnlpTunnel,
                 slaveTimoutInSeconds = 300
         )
+
+        if (jnlpTunnel) {
+            ecsCloud.setTunnel(jnlpTunnel)
+        }        
 
         Jenkins.instance.clouds.clear()
         Jenkins.instance.clouds.add(ecsCloud)
