@@ -96,6 +96,7 @@ private void configureCloud( int defaultTaskCPU, int defaultTaskSoftMemory, int 
         String envClusterArn = getClusterArn()
         String clusterArn = queryJenkinsClusterArn(region, envClusterArn)
 
+        def env = System.getenv()
         String jnlpTunnel = env.AGENT_JNLP_TUNNEL ?: null
         String jenkinsInternalUrl = env.AGENT_JENKINS_URL ?: null
 
