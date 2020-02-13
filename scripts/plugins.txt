@@ -31,6 +31,10 @@ pipeline-stage-view
 github-branch-source
 pipeline-utility-steps
 
+# blueocean UI
+blueocean
+blueocean-github-pipeline
+
 # Install CodeOnTap Specific Plugins
 slack
 extended-choice-parameter
