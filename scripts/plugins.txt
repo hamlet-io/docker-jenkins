@@ -5,6 +5,7 @@ timestamper
 ws-cleanup
 saferestart
 mailer
+build-name-setter-plugin
 
 # install User Management and Security plugins
 script-security
@@ -48,7 +49,7 @@ configuration-as-code-support
 # Monitoring
 metrics
 
-# AWS Specific plugins 
+# AWS Specific plugins
 aws-java-sdk
 aws-credentials
 amazon-ecs:1.16
