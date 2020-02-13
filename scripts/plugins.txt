@@ -5,7 +5,7 @@ timestamper
 ws-cleanup
 saferestart
 mailer
-build-name-setter-plugin
+build-name-setter
 
 # install User Management and Security plugins
 script-security
