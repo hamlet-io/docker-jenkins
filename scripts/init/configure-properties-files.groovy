@@ -21,14 +21,14 @@ import java.io.FileOutputStream;
 
 def env = System.getenv()
 
-def String localPath = "/var/opt/codeontap/"
+def String localPath = env.PROPERTIES_DIR ?: "/var/opt/properties/"
 
 // Get files from S3
 def String opsS3Bucket = env.OPSDATA_BUCKET
 def String settingsPrefix = env.SETTINGS_PREFIX
 
 if ( opsS3Bucket && settingsPrefix ) {
-    AmazonS3 s3 = 
+    AmazonS3 s3 =
     AmazonS3ClientBuilder.standard()
                             .withRegion("ap-southeast-2") // The first region to try your request against
                             .withForceGlobalBucketAccessEnabled(true) // If a bucket is in a different region, try again in the correct region
@@ -39,7 +39,7 @@ if ( opsS3Bucket && settingsPrefix ) {
     Logger.global.info("Checking s3://$opsS3Bucket/$settingsPrefix for files")
 
     List<S3ObjectSummary> s3ObjectSummaries = objectListing.getObjectSummaries();
-    while (objectListing.isTruncated()) 
+    while (objectListing.isTruncated())
     {
         objectListing = s3.listNextBatchOfObjects (objectListing);
         s3ObjectSummaries.addAll (objectListing.getObjectSummaries());
@@ -49,16 +49,16 @@ if ( opsS3Bucket && settingsPrefix ) {
     {
         try {
             String s3ObjectKey = s3ObjectSummary.getKey();
-            
+
             String localFileName = localPath + s3ObjectKey.split("/")[-1]
 
             if ( localFileName != (localPath + "site.properties") && localFileName.endsWith(".properties") ) {
                 localFileName = localFileName + ".tmp"
-            } 
-        
+            }
+
             S3Object o = s3.getObject(opsS3Bucket, s3ObjectKey);
             S3ObjectInputStream s3is = o.getObjectContent();
-            
+
             Logger.global.info("Adding file to $localFileName")
 
             FileOutputStream fos = new FileOutputStream( new File(localFileName) );
@@ -70,7 +70,7 @@ if ( opsS3Bucket && settingsPrefix ) {
             s3is.close();
             fos.close();
 
-            new File(localFileName).setWritable(true, true); 
+            new File(localFileName).setWritable(true, true);
 
         } catch (AmazonServiceException e) {
             Logger.global.info(e.getErrorMessage());
@@ -82,20 +82,20 @@ if ( opsS3Bucket && settingsPrefix ) {
     }
 }
 
-// Merge site.properties into other properties files 
+// Merge site.properties into other properties files
 def String sitePropertiesFile = env.PROPERTIES_SITE_FILE ?: "site.properties"
-def propertiesFiles = new FileNameFinder().getFileNames(localPath, '**/*.properties.tmp', "**/$sitePropertiesFile") 
+def propertiesFiles = new FileNameFinder().getFileNames(localPath, '**/*.properties.tmp', "**/$sitePropertiesFile")
 
 // Get a writer to your new file
-propertiesFiles.each{ propFile -> 
+propertiesFiles.each{ propFile ->
     new File( (propFile).minus(".tmp") ).withWriter { w ->
 
     // For each input file path
     [ "$localPath/$sitePropertiesFile", propFile ].each { f ->
-        
+
       // Get a reader for the input file
       new File( f ).withReader { r ->
-  
+
         // And write data from the input into the output
         w << r << '\n'
       }

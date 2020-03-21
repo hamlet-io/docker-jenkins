@@ -1,7 +1,7 @@
 # Jenkins Master for Codeontap
 
-This container provides a standard Jenkins install which we recommended for CodeOnTap ( https://codeontap.io ) deployments.
-The container also supports deployment using the CodeOnTap framework along with using this Jenkins server to deploy other products.
+This container provides a standard Jenkins install which we recommended for hamlet ( https://codeontap.io ) deployments.
+The container also supports deployment using the Hamlet along with using this Jenkins server to deploy other products.
 
 ## Environment Variables
 
@@ -16,11 +16,20 @@ The container also supports deployment using the CodeOnTap framework along with 
 ### Agent Configuration
 
 This Jenkins instance is designed to work with container based on-demand agents
+You can currently use Amazon ECS Agents via the amazon-ecs plugin
 
-- JENKINSENV_SLAVEPROVIDER
+- ECS_ARN - The ARN for the ECS cluster to run the task on
+- AGENT_JNLP_TUNNEL - An alternate hostname:port combination which can be used to provide a new network path to the JNLP endpoint
+- AGENT_JENKINS_URL - An alternate Url which can be used to provide a new network path to the JNLP endpoint
+- AGENT_REMOTE_FS - The path on the agent which will be used as the agent users home
 
-- SLAVE_<NAME>_ECSHOST
-- SLAVE_<NAME>_DEFINITION
+Multiple agent labels with their own task definitions are supported
+
+- ECS_AGENT_PREFIX - Sets the prefix used to search in environment variables for the agents
+
+Agents can then be defined using the following syntax
+
+- <ECS_AGENT_PREFIX>_<Agent_Label>_DEFINITION - ECS Task Definition Id or Arn
 
 ### Security Realm
 

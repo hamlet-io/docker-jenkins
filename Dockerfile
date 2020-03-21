@@ -27,14 +27,18 @@ COPY scripts/init/ /usr/share/jenkins/ref/init.groovy.d/
 RUN find /usr/share/jenkins/ref/init.groovy.d/ -type f -exec mv '{}' '{}'.override \;
 COPY scripts/casc/ /usr/share/jenkins/ref/casc_configs
 
-# Container Configuration 
+# Container Configuration
 USER root
 
-# Create extra volumes for logging and WAR cache location to allow for updates as part of master docker image 
+## Used to store properties files which are shared between agents
+ENV PROPERTIES_DIR="/var/opt/properties"
+
+RUN mkdir -p "${PROPERTIES_DIR}" && \
+    chown -R jenkins:jenkins "${PROPERTIES_DIR}"
+
+# Create extra volumes for logging and WAR cache location to allow for updates as part of master docker image
 RUN mkdir -p /var/log/jenkins && \
-    chown -R jenkins:jenkins /var/log/jenkins && \
-    mkdir -p /var/opt/codeontap/ && \
-    chown -R jenkins:jenkins /var/opt/codeontap/ 
+    chown -R jenkins:jenkins /var/log/jenkins &&
 
 # Change back to jenkins user to run jenkins
 USER jenkins
@@ -42,6 +46,7 @@ USER jenkins
 ENV AGENT_REMOTE_FS="/home/jenkins"
 ENV CASC_JENKINS_CONFIG="/usr/share/jenkins/ref/casc_configs"
 
+# Defaults for Jenkins Configuration
 ENV JENKINS_URL="http://localhost:8080"
 ENV JENKINS_ADMIN="root@local.host"
 ENV JENKINS_MASTER_EXECUTORS="0"
@@ -74,4 +79,3 @@ ENV JAVA_OPTS="-Dhudson.DNSMultiCast.disabled=true \
                 -Dhudson.slaves.NodeProvisioner.initialDelay=0 \
                 -Dhudson.slaves.NodeProvisioner.MARGIN=50 \
                 -Dhudson.slaves.NodeProvisioner.MARGIN0=0.85"
-
