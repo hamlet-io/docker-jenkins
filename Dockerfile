@@ -34,11 +34,15 @@ USER root
 ENV PROPERTIES_DIR="/var/opt/properties"
 
 RUN mkdir -p "${PROPERTIES_DIR}" && \
-    chown -R jenkins:jenkins "${PROPERTIES_DIR}"
+    chown -R jenkins:jenkins "${PROPERTIES_DIR}" && \
+    mkdir -p "/var/opt/codeontap" && \
+    chown -R jenkins:jenkins "/var/opt/codeontap" && \
+    mkdir -p "/var/opt/hamlet" && \
+    chown -R jenkins:jenkins "/var/opt/hamlet"
 
 # Create extra volumes for logging and WAR cache location to allow for updates as part of master docker image
 RUN mkdir -p /var/log/jenkins && \
-    chown -R jenkins:jenkins /var/log/jenkins &&
+    chown -R jenkins:jenkins /var/log/jenkins
 
 # Change back to jenkins user to run jenkins
 USER jenkins
