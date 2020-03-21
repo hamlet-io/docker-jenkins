@@ -5,30 +5,28 @@ timestamper
 ws-cleanup
 saferestart
 mailer
-build-name-setter
+job-dsl
 
 # install User Management and Security plugins
 script-security
 credentials
 credentials-binding
 matrix-auth
-pam-auth
-github-oauth
 saml
-oic-auth
 
 # install Source Code Management plugins
 git
 
-# install Organisation and Administration plugins
+# Formatting
 antisamy-markup-formatter
-github-organization-folder
 
 # install Pipelines and Continuous Delivery plugins
 workflow-aggregator
 workflow-multibranch
 pipeline-stage-view
+github-organization-folder
 github-branch-source
+ghprb
 pipeline-utility-steps
 
 # blueocean UI
@@ -42,9 +40,7 @@ build-user-vars-plugin
 envinject
 parameterized-trigger
 generic-webhook-trigger
-
 configuration-as-code
-configuration-as-code-support
 
 # Monitoring
 metrics
@@ -52,7 +48,7 @@ metrics
 # AWS Specific plugins
 aws-java-sdk
 aws-credentials
-amazon-ecs:1.16
+amazon-ecs:1.26
 
 # testing reports
 junit
