@@ -21,7 +21,11 @@ import java.io.FileOutputStream;
 
 def env = System.getenv()
 
-def String localPath = env.PROPERTIES_DIR ?: "/var/opt/properties/"
+def String localPath = env.PROPERTIES_DIR ?: '/var/opt/properties/'
+
+if ( ! localPath.endsWith('/') ) {
+    localPath = localPath + '/'
+}
 
 // Get files from S3
 def String opsS3Bucket = env.OPSDATA_BUCKET

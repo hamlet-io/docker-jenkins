@@ -31,7 +31,7 @@ COPY scripts/casc/ /usr/share/jenkins/ref/casc_configs
 USER root
 
 ## Used to store properties files which are shared between agents
-ENV PROPERTIES_DIR="/var/opt/properties"
+ENV PROPERTIES_DIR="/var/opt/properties/"
 
 RUN mkdir -p "${PROPERTIES_DIR}" && \
     chown -R jenkins:jenkins "${PROPERTIES_DIR}" && \
