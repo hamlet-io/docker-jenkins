@@ -12,7 +12,9 @@ script-security
 credentials
 credentials-binding
 matrix-auth
+github-oauth
 saml
+folder-auth
 
 # install Source Code Management plugins
 git
