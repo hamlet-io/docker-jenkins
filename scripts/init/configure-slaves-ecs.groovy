@@ -47,8 +47,8 @@ if ( (env.findResults {  k, v -> k.startsWith(ecsAgentEnvPrefix) == true }).cont
         String envClusterArn = env.ECS_ARN
         String clusterArn = queryJenkinsClusterArn(region, envClusterArn)
 
-        String jnlpTunnel = env.AGENT_JNLP_TUNNEL ?: null
-        String jenkinsInternalUrl = env.AGENT_JENKINS_URL ?: null
+        String jnlpTunnel = env.AGENT_JNLP_TUNNEL ?: ''
+        String jenkinsInternalUrl = env.AGENT_JENKINS_URL ?: ''
 
         Logger.global.info("Creating ECS cloud for $clusterArn")
         def ecsCloud = new ECSCloud(
@@ -58,19 +58,12 @@ if ( (env.findResults {  k, v -> k.startsWith(ecsAgentEnvPrefix) == true }).cont
         )
 
         ecsCloud.setRegionName(getRegion())
-
         ecsCloud.setSlaveTimeoutInSeconds(300)
+        ecsCloud.setJenkinsUrl(jenkinsInternalUrl)
+        ecsCloud.setTunnel(jnlpTunnel)
 
         if ( ecsTemplates ) {
             ecsCloud.setTemplates(ecsTemplates)
-        }
-
-        if ( jenkinsInternalUrl ) {
-            ecsCloud.setJenkinsUrl(jenkinsInternalUrl)
-        }
-
-        if (jnlpTunnel) {
-            ecsCloud.setTunnel(jnlpTunnel)
         }
 
         Jenkins.instance.clouds.clear()
