@@ -6,6 +6,7 @@ ws-cleanup
 saferestart
 mailer
 job-dsl
+autocancel
 
 # install User Management and Security plugins
 script-security
@@ -28,14 +29,14 @@ workflow-multibranch
 pipeline-stage-view
 github-organization-folder
 github-branch-source
-ghprb
 pipeline-utility-steps
+ghprb
 
 # blueocean UI
 blueocean
 blueocean-github-pipeline
 
-# Install CodeOnTap Specific Plugins
+# Install hamlet Specific Plugins
 slack
 extended-choice-parameter
 build-user-vars-plugin
@@ -46,13 +47,16 @@ configuration-as-code
 
 # Monitoring
 metrics
+outbound-webhook
 
 # AWS Specific plugins
 aws-java-sdk
 aws-credentials
-amazon-ecs:1.26
+amazon-ecs:1.36
 
 # testing reports
 junit
 htmlpublisher
 warnings-ng
+
+delivery-pipeline-plugin
