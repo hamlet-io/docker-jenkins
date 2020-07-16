@@ -34,7 +34,7 @@ def env = System.getenv()
 
 Logger.global.info("[Running] Creating agent definition for ECS Agents" )
 
-ecsAgentEnvPrefix = env.ECS_AGENT_PREFIX ?: "SLAVE"
+ecsAgentEnvPrefix = env.ECS_AGENT_PREFIX ?: 'AGENT'
 
 if ( (env.findResults {  k, v -> k.startsWith(ecsAgentEnvPrefix) == true }).contains(true)  ) {
     Logger.global.info("[Running] Configuring ECS as agent provider")
@@ -45,6 +45,7 @@ if ( (env.findResults {  k, v -> k.startsWith(ecsAgentEnvPrefix) == true }).cont
 
         Logger.global.info( "Found ${ecsTemplates.size()} Task Definitions" )
         String envClusterArn = env.ECS_ARN
+        String envClusterCredentialId = env.ECS_CRED_ID ?: null
         String clusterArn = queryJenkinsClusterArn(region, envClusterArn)
 
         String jnlpTunnel = env.AGENT_JNLP_TUNNEL ?: ''
@@ -53,7 +54,7 @@ if ( (env.findResults {  k, v -> k.startsWith(ecsAgentEnvPrefix) == true }).cont
         Logger.global.info("Creating ECS cloud for $clusterArn")
         def ecsCloud = new ECSCloud(
                 name = "jenkins_cluster",
-                credentialsId=null,
+                credentialsId=envClusterCredentialId,
                 cluster = clusterArn
         )
 
@@ -133,36 +134,39 @@ private ArrayList<ECSTaskTemplate> getEnvTaskTemplates(String ecsAgentEnvPrefix)
             }
         }
 
-        taskTemplate = new ECSTaskTemplate(
-            templateName = key.toLowerCase(),
-            label = key.toLowerCase(),
-            taskDefinitionOverride = definitionName,
-            image = "jenkins/jnlp-slave",
-            repositoryCredentials = null,
-            launchType = "EC2",
-            networkMode = "default",
-            remoteFSRoot = null,
-            uniqueRemoteFSRoot = false,
-            memory = 0 ,
-            memoryReservation = 128,
-            cpu = 128,
-            subnets = null,
-            securityGroups = null,
-            assignPublicIp = false,
-            privileged = false,
-            containerUser = null,
-            logDriverOptions = null,
-            environments = null,
-            extraHosts = null,
-            mountPoints = null,
-            portMappings = null,
-            executionRole = null,
-            placementStrategies = null,
-            taskrole = null,
-            inheritFrom= null,
-            sharedMemorySize = 64
-        )
-        taskTemplates.push(taskTemplate)
+        if ( definitionName ) {
+
+            taskTemplate = new ECSTaskTemplate(
+                templateName = key.toLowerCase(),
+                label = key.toLowerCase(),
+                taskDefinitionOverride = definitionName,
+                image = "jenkins/jnlp-slave",
+                repositoryCredentials = null,
+                launchType = "EC2",
+                networkMode = "default",
+                remoteFSRoot = null,
+                uniqueRemoteFSRoot = false,
+                memory = 0 ,
+                memoryReservation = 128,
+                cpu = 128,
+                subnets = null,
+                securityGroups = null,
+                assignPublicIp = false,
+                privileged = false,
+                containerUser = null,
+                logDriverOptions = null,
+                environments = null,
+                extraHosts = null,
+                mountPoints = null,
+                portMappings = null,
+                executionRole = null,
+                placementStrategies = null,
+                taskrole = null,
+                inheritFrom= null,
+                sharedMemorySize = 64
+            )
+            taskTemplates.push(taskTemplate)
+        }
     }
     return taskTemplates
 }
