@@ -140,13 +140,14 @@ private ArrayList<ECSTaskTemplate> getEnvTaskTemplates(String ecsAgentEnvPrefix)
                 templateName = key.toLowerCase(),
                 label = key.toLowerCase(),
                 taskDefinitionOverride = definitionName,
+                dynamicTaskDefinitionOverride = null,
                 image = "jenkins/jnlp-slave",
                 repositoryCredentials = null,
                 launchType = "EC2",
                 networkMode = "default",
                 remoteFSRoot = null,
                 uniqueRemoteFSRoot = false,
-                platformVersion = null,
+                platformVersion = 'LATEST',
                 memory = 0 ,
                 memoryReservation = 128,
                 cpu = 128,
@@ -164,7 +165,7 @@ private ArrayList<ECSTaskTemplate> getEnvTaskTemplates(String ecsAgentEnvPrefix)
                 placementStrategies = null,
                 taskrole = null,
                 inheritFrom= null,
-                sharedMemorySize = 64
+                sharedMemorySize = 64,
             )
             taskTemplates.push(taskTemplate)
         }
