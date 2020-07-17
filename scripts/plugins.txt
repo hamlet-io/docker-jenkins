@@ -47,7 +47,6 @@ configuration-as-code
 
 # Monitoring
 metrics
-outbound-webhook
 
 # AWS Specific plugins
 aws-java-sdk
