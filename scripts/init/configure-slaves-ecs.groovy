@@ -146,6 +146,7 @@ private ArrayList<ECSTaskTemplate> getEnvTaskTemplates(String ecsAgentEnvPrefix)
                 networkMode = "default",
                 remoteFSRoot = null,
                 uniqueRemoteFSRoot = false,
+                platformVersion = null,
                 memory = 0 ,
                 memoryReservation = 128,
                 cpu = 128,
