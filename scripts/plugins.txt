@@ -10,6 +10,7 @@ autocancel
 next-build-number
 
 # install User Management and Security plugins
+extended-read-permission
 script-security
 credentials
 credentials-binding
