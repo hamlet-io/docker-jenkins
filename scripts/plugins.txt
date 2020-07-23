@@ -7,6 +7,7 @@ saferestart
 mailer
 job-dsl
 autocancel
+next-build-number
 
 # install User Management and Security plugins
 script-security
