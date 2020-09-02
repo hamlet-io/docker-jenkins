@@ -15,7 +15,6 @@ script-security
 credentials
 credentials-binding
 matrix-auth
-github-oauth
 saml
 folder-auth
 
@@ -25,18 +24,19 @@ git
 # Formatting
 antisamy-markup-formatter
 
+# Github Support
+github-branch-source
+github-oauth
+github-organization-folder
+github-checks
+
+ghprb
+
 # install Pipelines and Continuous Delivery plugins
 workflow-aggregator
 workflow-multibranch
 pipeline-stage-view
-github-organization-folder
-github-branch-source
 pipeline-utility-steps
-ghprb
-
-# blueocean UI
-blueocean
-blueocean-github-pipeline
 
 # Install hamlet Specific Plugins
 slack
@@ -60,4 +60,6 @@ junit
 htmlpublisher
 warnings-ng
 
+# Views
 delivery-pipeline-plugin
+view-job-filters
