@@ -32,6 +32,9 @@ github-checks
 
 ghprb
 
+# Notifications
+skip-notifications-trait-plugin
+
 # install Pipelines and Continuous Delivery plugins
 workflow-aggregator
 workflow-multibranch
