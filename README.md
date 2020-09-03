@@ -62,8 +62,44 @@ The Security realm defines the authentication service provider you would like to
 - SAMLAUTH_BINDING
 - SAMLAUTH_USERCASE
 
-### Jenkins Credentails
+### Github Webhook Secret
+
+- GITHUB_WEBHOOK_CRED_ID - the id of the plain text credential for the github webhook secret
+
+### Slack Default Configuration
+
+- SLACK_WORKSPACE
+- SLACK_DEFAULT_CHANNEL
+- SLACK_CRED_ID - the id of the plain text credential for the slack token
+
+### Jenkins Credentials
+
+Allows you to provide credentials for the global Jenkins namespace to add on startup
+The type allows for other credentials to be loaded and they each have their own properties
+
+#### Generic Properties
+
+- JENKINSENV_CREDENTIALS_<NAME>_NAME
+- JENKINSENV_CREDENTIALS_<NAME>_DESCRIPTION
+- JENKINSENV_CREDENTIALS_<NAME>_TYPE
+
+#### Type: userpw
+
+Creates a username and password credential based on the [credentials plugin](https://github.com/jenkinsci/credentials-plugin)
 
 - JENKINSENV_CREDENTIALS_<NAME>_USER
 - JENKINSENV_CREDENTIALS_<NAME>_PASSWORD
-- JENKINSENV_CREDENTIALS_<NAME>_DESCRIPTION
+
+#### Type: secret
+
+Creates a secret text credential based on the [plaintext credential plugin](https://github.com/jenkinsci/plain-credentials-plugin)
+
+- JENKINSENV_CREDENTIALS_<NAME>_SECRET
+
+#### Type: githubapp
+
+Creates a github app credential based on the [github branch source](https://github.com/jenkinsci/github-branch-source-plugin) git hub app
+
+- JENKINSENV_CREDENTIALS_<NAME>_GHAPPID
+- JENKINSENV_CREDENTIALS_<NAME>_GHAPPOWNER
+- JENKINSENV_CREDENTIALS_<NAME>_PRIVATEKEY
