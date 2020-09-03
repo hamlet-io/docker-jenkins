@@ -37,7 +37,7 @@ def String samlLifeTimeMax = env.SAMLAUTH_LIFETIME_MAX ?: SamlSecurityRealm.DEFA
 def String samlBinding = env.SAMLAUTH_BINDING
 def String samlUserCase = env.SAMLAUTH_USERCASE ?: SamlSecurityRealm.DEFAULT_USERNAME_CASE_CONVERSION
 
-if (jenkinsPassword) { 
+if (jenkinsPassword) {
     Logger.global.info("Attempting Decryption of jenkinsPassword")
     jenkinsPassword = getKMSDecryptedString(env.JENKINSENV_PASS)
 }
@@ -55,17 +55,17 @@ if (!githubSecret) {
     githubSecret = env.GITHUBAUTH_SECRET
 }
 
-// Set Auth Strategy 
+// Set Auth Strategy
 if ( !(jenkins.getAuthorizationStrategy() instanceof ProjectMatrixAuthorizationStrategy) ) {
     jenkins.setAuthorizationStrategy(new ProjectMatrixAuthorizationStrategy())
 }
 
 // -- Add Authentication Sources
-switch ( securityRealm ) { 
+switch ( securityRealm ) {
 
     // Inbuilt local Realm
     case "local":
-        SecurityRealm local_realm = new HudsonPrivateSecurityRealm(false) 
+        SecurityRealm local_realm = new HudsonPrivateSecurityRealm(false)
         if(!(jenkins.getSecurityRealm() instanceof HudsonPrivateSecurityRealm )) {
             jenkins.setSecurityRealm(local_realm)
 
@@ -75,9 +75,9 @@ switch ( securityRealm ) {
         }
 
         jenkins.getAuthorizationStrategy().add(Jenkins.ADMINISTER, jenkinsUser)
-        break 
+        break
 
-    // GitHub oAuth 
+    // GitHub oAuth
     case "github":
         if(!binding.hasVariable('github_realm')) {
             github_realm = [:]
@@ -97,21 +97,21 @@ switch ( securityRealm ) {
 
         if(clientID && clientSecret) {
             SecurityRealm github_realm = new GithubSecurityRealm(
-                githubWebUri, 
-                githubApiUri, 
-                clientID, 
-                clientSecret, 
+                githubWebUri,
+                githubApiUri,
+                clientID,
+                clientSecret,
                 oauthScopes)
             //check for equality, no need to modify the runtime if no settings changed
             if(!(jenkins.getSecurityRealm() instanceof GithubSecurityRealm)) {
                 jenkins.setSecurityRealm(github_realm)
-            } 
+            }
         }
         jenkins.getAuthorizationStrategy().add(Jenkins.ADMINISTER, githubAdmin)
         break
-    
+
     // SAML Authentication Realm
-    case "saml": 
+    case "saml":
 
         // https://github.com/jenkinsci/saml-plugin/blob/master/src/main/java/org/jenkinsci/plugins/saml/IdpMetadataConfiguration.java
        /**
@@ -125,14 +125,14 @@ switch ( securityRealm ) {
                 null,
                 null
             )
-        } else if ( samlMetadataUrl ) { 
+        } else if ( samlMetadataUrl ) {
             def samlIdpMetadata = new IdpMetadataConfiguration(
                 null,
                 samlMetadataUrl,
                 samlMetadataPeriod
             )
         } else {
-            throw new Exception("ERROR: Could not determine SAML metadata endpoint", E); 
+            throw new Exception("ERROR: Could not determine SAML metadata endpoint", E);
         }
 
 
@@ -174,10 +174,16 @@ switch ( securityRealm ) {
 jenkins.save()
 
 private String getKMSDecryptedString( String encryptedString ) {
+
+    // Support prefixed KMS secrets
+    def env = System.getenv()
+    def kms_prefix = env["KMS_PREFIX"] ?: 'kms+base64:'
+    encryptedString = encryptedString.minus(kms_prefix)
+
     try {
 
         AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
-        
+
 		ByteBuffer cipherText = ByteBuffer.wrap(Base64.decode(encryptedString));
         DecryptRequest decryptRequest = new DecryptRequest().withCiphertextBlob(cipherText);
         ByteBuffer plainText = kmsClient.decrypt(decryptRequest).getPlaintext();
@@ -186,7 +192,7 @@ private String getKMSDecryptedString( String encryptedString ) {
 		plainText.get(byteArray);
 		return new String(byteArray);
     }
-    catch (all) { 
+    catch (all) {
         Logger.global.info("Couldn't decrypt string - using as plaintext")
         Logger.global.info("$all.message")
     }

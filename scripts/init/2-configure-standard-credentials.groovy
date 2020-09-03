@@ -4,6 +4,9 @@ import com.cloudbees.plugins.credentials.common.*
 import com.cloudbees.plugins.credentials.domains.*
 import com.cloudbees.plugins.credentials.impl.*
 
+import org.jenkinsci.plugins.github_branch_source.* ;
+import org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl;
+
 import java.util.logging.Logger;
 
 import java.nio.ByteBuffer;
@@ -22,49 +25,127 @@ credentialObjects = []
 domain = Domain.global()
 store = jenkins.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
 
+currentCreds = store.getCredentials(Domain.global())
+
 for ( String key in credentials.keySet() ) {
 
     def name = ""
+    def description = ""
+    def type = "userpw"
+
+    // UserPW specifc credentials
     def username = ""
     def password = ""
-    def description = ""
+
+    // Github App Credential
+    def ghAppId = ""
+    def ghPrivateKey = ""
+    def ghOwner = ""
+
+    // Secret Text
+    def secret = ""
 
     properties = credentials.get(key)
-    for ( property in properties ) { 
-        switch (property[1]) { 
+    for ( property in properties ) {
+        switch (property[1]) {
             case "NAME":
                 name = property[2]
                 break
+            case "DESCRIPTION":
+                description = property[2]
+                break
+            case "TYPE":
+                type = property[2]
+                break
+
+            // userpw type
             case "USER":
                 username = property[2]
                 break
             case "PASSWORD":
                 password = property[2]
                 break
-            case "DESCRIPTION":
-                description = property[2]
+
+            // github app
+            case "GITHUB_APP_ID"
+                ghAppId = property[2]
+                break
+            case "GITHUB_APP_PRIVATE_KEY"
+                ghPrivateKey = property[2]
+                break
+            case "GITHUB_APP_OWNER"
+                ghOwner = property[2]
+                break
+
+            // secret string
+            case "SECRET"
+                secret = property[2]
                 break
         }
     }
 
-    Logger.global.info("Creating Credential:" + name ) 
+    Logger.global.info("Creating Credential:" + name + "Type:" + type )
 
-    password = getKMSDecryptedString(password)
+    // Remove existing credentials
+    currentCreds.find{ it.id == name }.each{
+        store.removeCredentials(Domain.global(), it)
+    }
 
-    usernameAndPassword = new UsernamePasswordCredentialsImpl(
-        CredentialsScope.GLOBAL,
-        name, 
-        description,
-        username,
-        password
-    )
+    if (type == "userpw") {
+        password = getKMSDecryptedString(password)
 
-    store.addCredentials(domain, usernameAndPassword)
+        usernameAndPassword = new UsernamePasswordCredentialsImpl(
+            CredentialsScope.GLOBAL,
+            name,
+            description,
+            username,
+            password
+        )
+
+        store.addCredentials(domain, usernameAndPassword)
+    }
+
+    if ( type == "githubapp" ) {
+        ghPrivateKey = getKMSDecryptedString(ghPrivateKey)
+
+        githubAppCredentials = new GitHubAppCredentials(
+            CredentialsScope.GLOBAL,
+            name,
+            description,
+            ghAppId,
+            ghPrivateKey
+        )
+
+        store.addCredentials(githubAppCredentials)
+
+        if ( ghOwner ) {
+            githubAppCredentials.setOwner(ghOwner)
+        }
+    }
+
+    if ( type == 'secret' ) {
+        secret = getKMSDecryptedString(secret)
+
+        secretText = new StringCredentialsImpl(
+            CredentialsScope.GLOBAL,
+            name,
+            description,
+            secret
+        )
+
+        store.addCredentials(secretText)
+    }
 }
 
 jenkins.save()
 
 private String getKMSDecryptedString( String encryptedString ) {
+
+    // Support prefixed KMS secrets
+    def env = System.getenv()
+    def kms_prefix = env["KMS_PREFIX"] ?: 'kms+base64:'
+    encryptedString = encryptedString.minus(kms_prefix)
+
     try {
 
         AWSKMS kmsClient = AWSKMSClientBuilder.defaultClient();
@@ -77,7 +158,7 @@ private String getKMSDecryptedString( String encryptedString ) {
 		plainText.get(byteArray);
 		return new String(byteArray);
     }
-    catch (all) { 
+    catch (all) {
         Logger.global.info("Couldn't decrypt string - using as plaintext")
         return new String(encryptedString)
     }
