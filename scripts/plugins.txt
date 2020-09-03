@@ -33,7 +33,7 @@ github-checks
 ghprb
 
 # Notifications
-skip-notifications-trait-plugin
+skip-notifications-trait
 
 # install Pipelines and Continuous Delivery plugins
 workflow-aggregator
