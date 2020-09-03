@@ -1,10 +1,12 @@
-import jenkins.model.*
-import com.cloudbees.plugins.credentials.*
-import com.cloudbees.plugins.credentials.common.*
-import com.cloudbees.plugins.credentials.domains.*
-import com.cloudbees.plugins.credentials.impl.*
+import jenkins.model.*;
 
-import org.jenkinsci.plugins.github_branch_source.* ;
+import hudson.util.Secret;
+import com.cloudbees.plugins.credentials.*;
+import com.cloudbees.plugins.credentials.common.*;
+import com.cloudbees.plugins.credentials.domains.*;
+import com.cloudbees.plugins.credentials.impl.*;
+
+import org.jenkinsci.plugins.github_branch_source.GitHubAppCredentials ;
 import org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl;
 
 import java.util.logging.Logger;
@@ -67,24 +69,24 @@ for ( String key in credentials.keySet() ) {
                 break
 
             // github app
-            case "GITHUB_APP_ID"
+            case "GHAPPID":
                 ghAppId = property[2]
                 break
-            case "GITHUB_APP_PRIVATE_KEY"
+            case "GHAPPKEY":
                 ghPrivateKey = property[2]
                 break
-            case "GITHUB_APP_OWNER"
+            case "GHAPPOWNER":
                 ghOwner = property[2]
                 break
 
             // secret string
-            case "SECRET"
+            case "SECRET":
                 secret = property[2]
                 break
         }
     }
 
-    Logger.global.info("Creating Credential:" + name + "Type:" + type )
+    Logger.global.info("Creating Credential: " + name + " Type: " + type )
 
     // Remove existing credentials
     currentCreds.find{ it.id == name }.each{
@@ -113,27 +115,27 @@ for ( String key in credentials.keySet() ) {
             name,
             description,
             ghAppId,
-            ghPrivateKey
+            Secret.fromString(ghPrivateKey)
         )
 
-        store.addCredentials(githubAppCredentials)
+        store.addCredentials(domain, githubAppCredentials)
 
         if ( ghOwner ) {
             githubAppCredentials.setOwner(ghOwner)
         }
     }
 
-    if ( type == 'secret' ) {
+    if ( type == "secret" ) {
         secret = getKMSDecryptedString(secret)
 
         secretText = new StringCredentialsImpl(
             CredentialsScope.GLOBAL,
             name,
             description,
-            secret
+            Secret.fromString(secret)
         )
 
-        store.addCredentials(secretText)
+        store.addCredentials(domain, secretText)
     }
 }
 
