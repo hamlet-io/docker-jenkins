@@ -29,11 +29,9 @@ unclassified:
       - credentialsId: ${GITHUB_WEBHOOK_CRED_ID}
 
   slackNotifier:
-    baseUrl: ${SLACK_BASE_URL}
+    teamDomain: ${SLACK_WORKSPACE}
     room: ${SLACK_DEFAULT_CHANNEL}
     tokenCredentialId: ${SLACK_CRED_ID}
-    botUser: false
-    sendAsText: false
 
-  timestamperConfig:
+  timestamper:
     allPipelines: true
