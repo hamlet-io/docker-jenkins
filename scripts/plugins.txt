@@ -57,6 +57,7 @@ metrics
 aws-java-sdk
 aws-credentials
 amazon-ecs:1.36
+pipeline-aws
 
 # testing reports
 junit
