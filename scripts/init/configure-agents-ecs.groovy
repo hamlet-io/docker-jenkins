@@ -82,7 +82,12 @@ if ( (env.findResults {  k, v -> k.startsWith(ecsAgentEnvPrefix) == true }).cont
 
 private String getRegion() {
     def env =  System.getenv()
-    def region = EC2MetadataUtils.getEC2InstanceRegion() ?: env.DEFAULT_AWS_REGION
+    try {
+        def region = EC2MetadataUtils.getEC2InstanceRegion()
+    }
+    catch ( com.amazonaws.SdkClientException e ) {
+        def region = env.AWS_REGION ? env.DEFAULT_AWS_REGION
+    }
 }
 
 
