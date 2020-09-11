@@ -1,10 +1,6 @@
-import com.amazonaws.ClientConfiguration
-import com.amazonaws.AmazonServiceException
-import com.amazonaws.regions.RegionUtils
-import com.amazonaws.services.ecs.AmazonECSClient
-import com.amazonaws.util.EC2MetadataUtils
-import com.amazonaws.services.elasticloadbalancing.*
-import com.amazonaws.services.elasticloadbalancing.model.*
+import com.amazonaws.arn.Arn
+
+import com.cloudbees.jenkins.plugins.amazonecs.ECSCloud
 import com.cloudbees.jenkins.plugins.amazonecs.ECSTaskTemplate
 import com.cloudbees.jenkins.plugins.amazonecs.ECSTaskTemplate.MountPointEntry
 import com.cloudbees.jenkins.plugins.amazonecs.ECSTaskTemplate.EnvironmentEntry
@@ -12,7 +8,6 @@ import com.cloudbees.jenkins.plugins.amazonecs.ECSTaskTemplate.LogDriverOption
 import com.cloudbees.jenkins.plugins.amazonecs.ECSTaskTemplate.PortMappingEntry
 import com.cloudbees.jenkins.plugins.amazonecs.ECSTaskTemplate.ExtraHostEntry
 
-import com.cloudbees.jenkins.plugins.amazonecs.ECSCloud
 import hudson.model.*
 import hudson.plugins.gradle.*
 import hudson.tools.*
@@ -20,13 +15,7 @@ import jenkins.model.*
 import jenkins.model.Jenkins
 import jenkins.model.JenkinsLocationConfiguration
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.List;
-
-import groovy.json.JsonSlurper
 
 import java.util.logging.Logger;
 
@@ -44,21 +33,20 @@ if ( (env.findResults {  k, v -> k.startsWith(ecsAgentEnvPrefix) == true }).cont
         def ecsTemplates = getEnvTaskTemplates(ecsAgentEnvPrefix)
 
         Logger.global.info( "Found ${ecsTemplates.size()} Task Definitions" )
-        String envClusterArn = env.ECS_ARN
+        Arn envClusterArn = Arn.fromString(env.ECS_ARN)
         String envClusterCredentialId = env.ECS_CRED_ID ?: null
-        String clusterArn = queryJenkinsClusterArn(region, envClusterArn)
 
         String jnlpTunnel = env.AGENT_JNLP_TUNNEL ?: ''
         String jenkinsInternalUrl = env.AGENT_JENKINS_URL ?: ''
 
-        Logger.global.info("Creating ECS cloud for $clusterArn")
+        Logger.global.info("Creating ECS cloud for " + envClusterArn.toString())
         def ecsCloud = new ECSCloud(
                 name = "jenkins_cluster",
                 credentialsId=envClusterCredentialId,
-                cluster = clusterArn
+                cluster = envClusterArn.toString()
         )
 
-        ecsCloud.setRegionName(getRegion())
+        ecsCloud.setRegionName(envClusterArn.getRegion())
         ecsCloud.setSlaveTimeoutInSeconds(300)
         ecsCloud.setJenkinsUrl(jenkinsInternalUrl)
         ecsCloud.setTunnel(jnlpTunnel)
@@ -80,36 +68,10 @@ if ( (env.findResults {  k, v -> k.startsWith(ecsAgentEnvPrefix) == true }).cont
     Logger.global.info("[Done] ECS agent provider configuraton finished ")
 }
 
-private String getRegion() {
-    def env =  System.getenv()
-    try {
-        def region = EC2MetadataUtils.getEC2InstanceRegion()
-    }
-    catch ( com.amazonaws.SdkClientException e ) {
-        def region = env.AWS_REGION ? env.DEFAULT_AWS_REGION
-    }
-}
-
-
-private getClientConfiguration() {
-    new ClientConfiguration()
-}
 
 private String getJenkinsURL() {
     JenkinsLocationConfiguration globalConfig = new JenkinsLocationConfiguration();
     return globalConfig.getUrl()
-}
-
-private String queryJenkinsClusterArn(String regionName, String clusterArn) {
-
-    if ( clusterArn.startsWith("arn:") ) {
-        return clusterArn
-    }
-    else {
-        AmazonECSClient client = new AmazonECSClient(clientConfiguration)
-        client.setRegion(RegionUtils.getRegion(regionName))
-        return client.listClusters().getClusterArns().find { it.contains(clusterArn) }
-    }
 }
 
 private ArrayList<ECSTaskTemplate> getEnvTaskTemplates(String ecsAgentEnvPrefix) {
