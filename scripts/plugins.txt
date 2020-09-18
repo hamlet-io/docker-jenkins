@@ -29,7 +29,6 @@ github-branch-source
 github-oauth
 github-organization-folder
 github-checks
-
 ghprb
 
 # Notifications
@@ -41,13 +40,16 @@ workflow-multibranch
 pipeline-stage-view
 pipeline-utility-steps
 
-# Install hamlet Specific Plugins
-slack
+# Prompts and input
 extended-choice-parameter
 build-user-vars-plugin
 envinject
+
+# Triggers
 parameterized-trigger
 generic-webhook-trigger
+
+# Configuration
 configuration-as-code
 
 # Monitoring
@@ -67,3 +69,7 @@ warnings-ng
 # Views
 delivery-pipeline-plugin
 view-job-filters
+
+#Notifications
+Office-365-Connector
+slack
