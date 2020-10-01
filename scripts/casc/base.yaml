@@ -32,6 +32,7 @@ unclassified:
     teamDomain: ${SLACK_WORKSPACE}
     room: ${SLACK_DEFAULT_CHANNEL}
     tokenCredentialId: ${SLACK_CRED_ID}
+    botUser: ${SLACK_BOT_USER}
 
   timestamper:
     allPipelines: true
