@@ -27,7 +27,6 @@ antisamy-markup-formatter
 # Github Support
 github-branch-source
 github-oauth
-github-organization-folder
 github-checks
 ghprb
 
@@ -44,6 +43,7 @@ pipeline-utility-steps
 extended-choice-parameter
 build-user-vars-plugin
 envinject
+folder-properties
 
 # Triggers
 parameterized-trigger
