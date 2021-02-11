@@ -58,7 +58,7 @@ metrics
 # AWS Specific plugins
 aws-java-sdk
 aws-credentials
-amazon-ecs:1.36
+amazon-ecs:1.37
 pipeline-aws
 
 # testing reports
