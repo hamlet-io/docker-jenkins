@@ -34,6 +34,7 @@ if ( (env.findResults {  k, v -> k.startsWith(ecsAgentEnvPrefix) == true }).cont
 
         Logger.global.info( "Found ${ecsTemplates.size()} Task Definitions" )
         Arn envClusterArn = Arn.fromString(env.ECS_ARN)
+        String envClusterRegion = envClusterArn.getRegion()
         String envClusterCredentialId = env.ECS_CRED_ID ?: null
 
         String jnlpTunnel = env.AGENT_JNLP_TUNNEL ?: ''
@@ -42,11 +43,11 @@ if ( (env.findResults {  k, v -> k.startsWith(ecsAgentEnvPrefix) == true }).cont
         Logger.global.info("Creating ECS cloud for " + envClusterArn.toString())
         def ecsCloud = new ECSCloud(
                 name = "jenkins_cluster",
-                credentialsId=envClusterCredentialId,
+                credentialsId = envClusterCredentialId,
                 cluster = envClusterArn.toString()
         )
 
-        ecsCloud.setRegionName(envClusterArn.getRegion())
+        ecsCloud.setRegionName(envClusterRegion)
         ecsCloud.setSlaveTimeoutInSeconds(300)
         ecsCloud.setJenkinsUrl(jenkinsInternalUrl)
         ecsCloud.setTunnel(jnlpTunnel)
