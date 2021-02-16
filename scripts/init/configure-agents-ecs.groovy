@@ -59,14 +59,14 @@ if ( (env.findResults {  k, v -> k.startsWith(ecsAgentEnvPrefix) == true }).cont
         Jenkins.instance.clouds.clear()
         Jenkins.instance.clouds.add(ecsCloud)
 
-    } catch (com.amazonaws.SdkClientException e) {
+        Jenkins.instance.save()
+        Logger.global.info("[Done] ECS agent provider configuraton finished ")
+
+    }
+    catch (com.amazonaws.SdkClientException e) {
         Logger.global.severe({ e.message })
         Logger.global.severe("ERROR: Could not create ECS config, are you running this container in AWS?")
     }
-
-
-    Jenkins.instance.save()
-    Logger.global.info("[Done] ECS agent provider configuraton finished ")
 }
 
 
@@ -109,14 +109,14 @@ private ArrayList<ECSTaskTemplate> getEnvTaskTemplates(String ecsAgentEnvPrefix)
                 label = key.toLowerCase(),
                 taskDefinitionOverride = definitionName,
                 dynamicTaskDefinitionOverride = null,
-                image = "jenkins/jnlp-slave",
+                image = "jenkins/inbound-agent",
                 repositoryCredentials = null,
                 launchType = "EC2",
                 networkMode = "default",
                 remoteFSRoot = null,
                 uniqueRemoteFSRoot = false,
                 platformVersion = 'LATEST',
-                memory = 0 ,
+                memory = 0,
                 memoryReservation = 128,
                 cpu = 128,
                 subnets = null,
