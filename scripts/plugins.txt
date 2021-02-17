@@ -25,6 +25,7 @@ git
 antisamy-markup-formatter
 
 # Github Support
+# Require this version to workaround https://issues.jenkins.io/browse/JENKINS-50154
 github:1.32.0
 github-branch-source
 github-oauth
