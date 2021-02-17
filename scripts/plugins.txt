@@ -25,10 +25,10 @@ git
 antisamy-markup-formatter
 
 # Github Support
+github:1.32.0
 github-branch-source
 github-oauth
 github-checks
-ghprb
 
 # Notifications
 skip-notifications-trait
