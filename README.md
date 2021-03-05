@@ -16,8 +16,7 @@ The container also supports deployment using Hamlet Deploy along with using this
 
 ### Agent Configuration
 
-This Jenkins instance is designed to work with container based on-demand agents
-You can currently use Amazon ECS Agents via the `amazon-ecs` plugin
+This Jenkins instance is designed to work with container based on-demand agents and include init scripts to provision clouds based on the [amazon-ecs](https://github.com/jenkinsci/amazon-ecs-plugin) plugin
 
 - ECS_ARN - The ARN for the ECS cluster to run the task on
 - AGENT_JNLP_TUNNEL - An alternate hostname:port combination which can be used to provide a new network path to the JNLP endpoint
