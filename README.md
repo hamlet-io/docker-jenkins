@@ -1,7 +1,8 @@
-# Jenkins Master for Codeontap
+# Jenkins Master for Hamlet Deploy
 
-This container provides a standard Jenkins install which we recommended for hamlet ( https://codeontap.io ) deployments.
-The container also supports deployment using the Hamlet along with using this Jenkins server to deploy other products.
+This container provides a standard Jenkins install which we recommended for [Hamlet Deploy](https://docs.hamlet.io) deployments.
+
+The container also supports deployment using Hamlet Deploy along with using this Jenkins server to deploy other products.
 
 ## Environment Variables
 
@@ -15,8 +16,7 @@ The container also supports deployment using the Hamlet along with using this Je
 
 ### Agent Configuration
 
-This Jenkins instance is designed to work with container based on-demand agents
-You can currently use Amazon ECS Agents via the amazon-ecs plugin
+This Jenkins instance is designed to work with container based on-demand agents and include init scripts to provision clouds based on the [amazon-ecs](https://github.com/jenkinsci/amazon-ecs-plugin) plugin
 
 - ECS_ARN - The ARN for the ECS cluster to run the task on
 - AGENT_JNLP_TUNNEL - An alternate hostname:port combination which can be used to provide a new network path to the JNLP endpoint
@@ -98,7 +98,7 @@ Creates a secret text credential based on the [plaintext credential plugin](http
 
 #### Type: githubapp
 
-Creates a github app credential based on the [github branch source](https://github.com/jenkinsci/github-branch-source-plugin) git hub app
+Creates a github app credential based on the [github branch source](https://github.com/jenkinsci/github-branch-source-plugin) GitHub app
 
 - JENKINSENV_CREDENTIALS_<NAME>_GHAPPID
 - JENKINSENV_CREDENTIALS_<NAME>_GHAPPOWNER
