@@ -4,7 +4,6 @@ build-timeout
 timestamper
 ws-cleanup
 saferestart
-mailer
 job-dsl
 autocancel
 next-build-number
@@ -26,8 +25,7 @@ git
 antisamy-markup-formatter
 
 # Github Support
-# Require this version to workaround https://issues.jenkins.io/browse/JENKINS-50154
-github:1.32.0
+github
 github-branch-source
 github-oauth
 github-checks
