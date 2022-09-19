@@ -1,0 +1,10 @@
+name: changelog
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  create_changelog:
+    uses: hamlet-io/.github/.github/workflows/changelog.yml@1.0.0
