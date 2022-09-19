@@ -1,25 +1,11 @@
-FROM jenkins/jenkins:lts
+FROM jenkins/jenkins:lts-jdk11
 
-LABEL MAINTAINER="hamlet"
-
-# Install OS Packages
-USER root
-RUN apt-get update && apt-get install -y \
-    curl \
-    apt-utils \
-    dos2unix \
-    tar zip unzip \
-    less vim tree \
-    git \
-    jq \
-    ca-certificates \
- && rm -rf /var/lib/apt/lists/*
-
- USER jenkins
+USER jenkins
 
 # install plugins specified in https://github.com/kohsuke/jenkins/blob/master/core/src/main/resources/jenkins/install/platform-plugins.json
 COPY scripts/plugins.txt /usr/share/jenkins/ref/plugins.txt
-RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
+RUN jenkins-plugin-cli -f /usr/share/jenkins/ref/plugins.txt
+
 RUN echo 2.0 > /usr/share/jenkins/ref/jenkins.install.UpgradeWizard.state
 
 #Copy Jenkins init files - make sure they override the old files
@@ -39,10 +25,6 @@ RUN mkdir -p "${PROPERTIES_DIR}" && \
     chown -R jenkins:jenkins "/var/opt/codeontap" && \
     mkdir -p "/var/opt/hamlet" && \
     chown -R jenkins:jenkins "/var/opt/hamlet"
-
-# Create extra volumes for logging and WAR cache location to allow for updates as part of master docker image
-RUN mkdir -p /var/log/jenkins && \
-    chown -R jenkins:jenkins /var/log/jenkins
 
 # Change back to jenkins user to run jenkins
 USER jenkins
@@ -70,17 +52,9 @@ ENV GITHUBAUTH_ADMIN=""
 ENV GITHUBAUTH_SECRET=""
 
 ENV TIMEZONE="Australia/Sydney"
-ENV MAXMEMORY="4096m"
 ENV JAVA_OPTS="-Dhudson.DNSMultiCast.disabled=true \
                 -Djenkins.install.runSetupWizard=false \
                 -Dorg.apache.commons.jelly.tags.fmt.timeZone=${TIMEZONE} \
-                -Duser.timezone=${TIMEZONE} \
-                -XX:+UnlockExperimentalVMOptions \
-                -XX:+UseCGroupMemoryLimitForHeap \
-                -XX:MaxRAMFraction=2 \
-                -XshowSettings:vm \
                 -Dhudson.slaves.ChannelPinger.pingIntervalSeconds=300 \
                 -Dhudson.slaves.ChannelPinger.pingTimeoutSeconds=30 \
-                -Dhudson.slaves.NodeProvisioner.initialDelay=0 \
-                -Dhudson.slaves.NodeProvisioner.MARGIN=50 \
-                -Dhudson.slaves.NodeProvisioner.MARGIN0=0.85"
+                -Dhudson.slaves.NodeProvisioner.initialDelay=0"

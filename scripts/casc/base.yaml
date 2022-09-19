@@ -6,8 +6,6 @@ jenkins:
   crumbIssuer:
     standard:
       excludeClientIPFromCrumb: true
-  remotingSecurity:
-    enabled: true
 
   markupFormatter:
     rawHtml:
