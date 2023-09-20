@@ -2,9 +2,7 @@
 cloudbees-folder
 build-timeout
 timestamper
-ws-cleanup
 saferestart
-job-dsl
 autocancel
 next-build-number
 
@@ -58,8 +56,8 @@ metrics
 # AWS Specific plugins
 aws-java-sdk
 aws-credentials
-amazon-ecs:1.41
-pipeline-aws
+amazon-ecs
+aws-secrets-manager-secret-source
 
 # testing reports
 junit
