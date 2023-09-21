@@ -1,10 +1,13 @@
 # Changelog
 
-## latest (2023-09-20)
+## latest (2023-09-21)
 
 #### Refactorings
 
 * simplify and move to JCasC
+#### Others
+
+* update changelog ([#25](https://github.com/hamlet-io/docker-jenkins/issues/25))
 
 Full set of changes: [`7.0.0...latest`](https://github.com/hamlet-io/docker-jenkins/compare/7.0.0...latest)
 
