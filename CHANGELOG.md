@@ -1,12 +1,23 @@
 # Changelog
 
-## latest (2023-09-20)
+## latest (2024-03-25)
+
+#### Others
+
+* update github action versions ([#28](https://github.com/hamlet-io/docker-jenkins/issues/28))
+
+Full set of changes: [`8.0.0...latest`](https://github.com/hamlet-io/docker-jenkins/compare/8.0.0...latest)
+
+## 8.0.0 (2023-09-21)
 
 #### Refactorings
 
 * simplify and move to JCasC
+#### Others
 
-Full set of changes: [`7.0.0...latest`](https://github.com/hamlet-io/docker-jenkins/compare/7.0.0...latest)
+* update changelog ([#25](https://github.com/hamlet-io/docker-jenkins/issues/25))
+
+Full set of changes: [`7.0.0...8.0.0`](https://github.com/hamlet-io/docker-jenkins/compare/7.0.0...8.0.0)
 
 ## 7.0.0 (2022-09-19)
 
